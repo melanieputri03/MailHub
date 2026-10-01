@@ -9,13 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grup_penerima', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('grup_penerima_id');    
+
             $table->foreignId('grup_id')
-                  ->constrained('grup')
+                  ->constrained('grup', 'grup_id')       
                   ->onDelete('cascade');
+
             $table->foreignId('penerima_id')
-                  ->constrained('penerima')
+                  ->constrained('penerima', 'penerima_id') 
                   ->onDelete('cascade');
+
             $table->timestamps();
 
             $table->unique(['grup_id', 'penerima_id']);

@@ -11,6 +11,7 @@ class Divisi extends Model
     use HasFactory;
 
     protected $table = 'divisi';
+    protected $primaryKey = 'divisi_id';        
 
     protected $fillable = [
         'nama',
@@ -18,9 +19,9 @@ class Divisi extends Model
         'status',
     ];
 
-     // Relasi: 1 Divisi punya banyak Penerima
+    // Relasi: 1 Divisi punya banyak Penerima
     public function penerima(): HasMany
     {
-        return $this->hasMany(Penerima::class, 'divisi_id');
+        return $this->hasMany(Penerima::class, 'divisi_id', 'divisi_id');
     }
 }

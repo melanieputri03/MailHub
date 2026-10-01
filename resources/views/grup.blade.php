@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{--  HEADER  --}}
+{{-- HEADER --}}
 <div class="flex items-start justify-between gap-4 mb-5">
     <div class="flex-1 min-w-0">
         <h1 class="text-[18px] font-bold text-ink flex items-center gap-2">
@@ -27,14 +27,14 @@
     </button>
 </div>
 
-{{--  LIST GRUP  --}}
+{{-- LIST GRUP --}}
 <div class="space-y-3">
 
     @forelse($grup as $g)
         <div class="bg-white border border-outline rounded-lg p-5 hover:shadow-sm transition">
             <div class="flex justify-between items-start gap-4">
 
-                {{-- Kiri: Info Grup --}}
+                {{-- KIRI: Info Grup --}}
                 <div class="flex-1 min-w-0">
                     <h3 class="font-semibold text-[14px] text-ink flex items-center gap-2">
                         <svg class="w-4 h-4 text-maroon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -45,13 +45,42 @@
                     </h3>
                     <p class="text-[12px] text-muted mt-1">{{ $g->deskripsi ?? 'Tanpa deskripsi.' }}</p>
 
-                {{-- Kanan: Badge & Aksi --}}
+                    {{-- Preview Anggota (5 pertama + "+N") --}}
+                    @if($g->penerima->count() > 0)
+                        <div class="mt-3 pt-3 border-t border-outline/60">
+                            <div class="mb-2">
+                                <span class="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                                    Anggota Terhubung:
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                @foreach($g->penerima->take(5) as $p)
+                                    <span class="bg-cream text-muted border border-outline text-[11px] px-2.5 py-1 rounded font-medium">
+                                        {{ $p->nama }}
+                                    </span>
+                                @endforeach
+
+                                @if($g->penerima->count() > 5)
+                                    <button type="button" onclick='bukaModalGrup(@json($g))'
+                                            class="bg-gold/15 text-gold text-[11px] px-2.5 py-1 rounded font-bold hover:bg-gold/25 transition">
+                                        +{{ $g->penerima->count() - 5 }} lainnya
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    @else
+                        <div class="mt-3 pt-3 border-t border-outline/60">
+                            <span class="text-[11px] text-muted italic">Belum ada anggota. Klik "Kelola Anggota" untuk menambahkan.</span>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- KANAN: Badge & Aksi --}}
                 <div class="text-right flex-shrink-0">
                     <span class="bg-gold/15 text-gold text-[11px] px-3 py-1 rounded-full font-bold">
                         {{ $g->penerima_count ?? 0 }} Anggota
                     </span>
                     <div class="mt-3 flex items-center gap-2 justify-end">
-                        {{-- Edit --}}
                         <button onclick='bukaModalGrup(@json($g))'
                                 class="w-7 h-7 hover:bg-cream rounded flex items-center justify-center text-muted hover:text-gold transition"
                                 title="Edit">
@@ -60,8 +89,7 @@
                             </svg>
                         </button>
 
-                        {{-- Hapus --}}
-                        <button onclick="bukaModalHapusGrup({{ $g->id }}, '{{ addslashes($g->nama) }}')"
+                        <button onclick="bukaModalHapusGrup({{ $g->grup_id }}, '{{ addslashes($g->nama) }}')"
                                 class="w-7 h-7 hover:bg-red-50 rounded flex items-center justify-center text-muted hover:text-red-600 transition"
                                 title="Hapus">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -73,7 +101,6 @@
             </div>
         </div>
     @empty
-        {{-- Empty State --}}
         <div class="bg-white border border-outline rounded-lg p-12 text-center">
             <div class="flex flex-col items-center gap-3">
                 <svg class="w-12 h-12 text-muted/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -90,11 +117,10 @@
 </div>
 
 
-{{--  MODAL BUAT/EDIT GRUP  --}}
+{{-- MODAL BUAT/EDIT GRUP --}}
 <div id="modalGrup" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-5xl max-h-[93vh] overflow-hidden flex flex-col border border-outline">
 
-        {{-- HEADER --}}
         <div class="px-6 py-4 border-b border-outline flex justify-between items-start bg-white flex-shrink-0">
             <div class="flex gap-3">
                 <div class="w-10 h-10 bg-gold/10 rounded-md flex items-center justify-center flex-shrink-0">
@@ -115,15 +141,12 @@
             </button>
         </div>
 
-        {{-- BODY --}}
         <div class="p-6 overflow-y-auto flex-1 bg-white">
-
             <form id="formGrup" method="POST" action="{{ route('grup.store') }}">
                 @csrf
                 <input type="hidden" name="_method" id="formGrupMethod" value="POST">
                 <input type="hidden" name="grup_id" id="formGrupId" value="">
 
-                {{-- Nama Grup --}}
                 <label class="text-[12px] font-semibold text-ink">
                     Nama Grup Penerima <span class="text-red-500">*</span>
                 </label>
@@ -132,17 +155,15 @@
                        class="w-full mt-1.5 border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink
                               focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition mb-4">
 
-                {{-- Deskripsi --}}
                 <label class="text-[12px] font-semibold text-ink">Deskripsi</label>
                 <textarea name="deskripsi" id="formGrupDeskripsi" rows="2"
                           placeholder="Opsional — keterangan grup"
                           class="w-full mt-1.5 border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink
                                  focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition mb-5 resize-none"></textarea>
 
-                {{-- Dual Listbox --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                    {{-- PANEL KIRI: TERSEDIA --}}
+                    {{-- PANEL KIRI --}}
                     <div class="border border-outline rounded-lg overflow-hidden">
                         <div class="px-4 py-3 border-b border-outline bg-cream/50 flex justify-between items-center">
                             <span class="text-[13px] font-semibold text-ink flex items-center gap-2">
@@ -155,7 +176,6 @@
                             <span class="text-[11px] text-muted">{{ $penerima->count() }} Kontak</span>
                         </div>
 
-                        {{-- Search + Filter Divisi --}}
                         <div class="p-3 border-b border-outline">
                             <div class="relative mb-3">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
@@ -163,24 +183,20 @@
                                         <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
                                     </svg>
                                 </span>
-                                <input type="text" id="searchAnggota"
-                                       oninput="filterAnggota()"
+                                <input type="text" id="searchAnggota" oninput="filterAnggota()"
                                        placeholder="Cari nama, email, atau divisi..."
                                        class="w-full border border-outline rounded-md pl-9 pr-3 py-2 text-[12px] text-ink
                                               focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition">
                             </div>
                         </div>
 
-                        {{-- List Anggota --}}
                         <div class="max-h-80 overflow-y-auto divide-y divide-outline/60" id="daftarAnggota">
                             @forelse($penerima as $p)
                                 <label class="anggota-item flex items-start gap-3 px-3.5 py-3 hover:bg-gold/5 cursor-pointer transition"
                                        data-nama="{{ strtolower($p->nama) }}"
                                        data-email="{{ strtolower($p->email) }}"
                                        data-divisi="{{ strtolower($p->divisi->nama ?? '') }}">
-                                    <input type="checkbox"
-                                           name="penerima_ids[]"
-                                           value="{{ $p->id }}"
+                                    <input type="checkbox" name="penerima_ids[]" value="{{ $p->penerima_id }}"
                                            class="anggota-checkbox mt-1 w-4 h-4 rounded accent-gold cursor-pointer">
                                     <div class="flex-1 min-w-0">
                                         <div class="text-[13px] font-medium text-ink truncate">{{ $p->nama }}</div>
@@ -198,7 +214,7 @@
                         </div>
                     </div>
 
-                    {{-- PANEL KANAN: TERPILIH --}}
+                    {{-- PANEL KANAN --}}
                     <div class="border border-outline rounded-lg overflow-hidden bg-gold/[0.03]">
                         <div class="px-4 py-3 border-b border-outline bg-cream/50 flex justify-between items-center">
                             <span class="text-[13px] font-semibold text-ink flex items-center gap-2">
@@ -225,18 +241,11 @@
                                 Belum ada anggota terpilih.
                             </div>
                         </div>
-
-                        <div class="px-4 py-2.5 border-t border-outline bg-white flex justify-between items-center">
-                            <span class="text-[11px] text-muted">Domain: @batamindo.co.id</span>
-                            <span class="text-green-600 text-[11px] font-semibold">100% Valid MX</span>
-                        </div>
                     </div>
                 </div>
-
             </form>
         </div>
 
-        {{-- FOOTER --}}
         <div class="px-6 py-4 border-t border-outline bg-white flex items-center justify-between gap-3 flex-shrink-0">
             <span class="text-[11px] text-muted flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -265,7 +274,7 @@
 </div>
 
 
-{{--  MODAL KONFIRMASI HAPUS GRUP  --}}
+{{-- MODAL HAPUS GRUP --}}
 <div id="modalHapusGrup" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-md border border-outline">
 
@@ -315,27 +324,25 @@
     const baseUrlGrup = "{{ url('/grup') }}";
     let selectedPenerima = new Set();
 
-    //  MODAL GRUP 
+    // ==================== MODAL GRUP ====================
     function bukaModalGrup(data) {
         const modal = document.getElementById('modalGrup');
         const form  = document.getElementById('formGrup');
         const title = document.getElementById('modalGrupTitle');
 
-        // Reset dulu
         resetModalGrup();
 
         if (data) {
             title.textContent = 'Edit Grup';
-            form.action = baseUrlGrup + '/' + data.id;
+            form.action = baseUrlGrup + '/' + data.grup_id;
             document.getElementById('formGrupMethod').value = 'PUT';
-            document.getElementById('formGrupId').value = data.id;
+            document.getElementById('formGrupId').value = data.grup_id;
             document.getElementById('formGrupNama').value = data.nama;
             document.getElementById('formGrupDeskripsi').value = data.deskripsi || '';
 
-            // Pre-check anggota yang sudah ada
             if (data.penerima && Array.isArray(data.penerima)) {
                 data.penerima.forEach(p => {
-                    selectedPenerima.add(p.id);
+                    selectedPenerima.add(p.penerima_id);
                 });
                 updateCheckboxFromState();
                 updatePanelTerpilih();
@@ -365,7 +372,7 @@
         updatePanelTerpilih();
     }
 
-    //  CHECKBOX ANGGOTA 
+    // ==================== CHECKBOX ANGGOTA ====================
     document.querySelectorAll('.anggota-checkbox').forEach(cb => {
         cb.addEventListener('change', function () {
             const id = parseInt(this.value);
@@ -385,7 +392,7 @@
         });
     }
 
-    //  FILTER ANGGOTA 
+    // ==================== FILTER ANGGOTA ====================
     function filterAnggota() {
         const keyword = document.getElementById('searchAnggota').value.toLowerCase().trim();
         document.querySelectorAll('.anggota-item').forEach(item => {
@@ -397,10 +404,9 @@
         });
     }
 
-    //  UPDATE PANEL TERPILIH 
+    // ==================== UPDATE PANEL TERPILIH ====================
     function updatePanelTerpilih() {
         const listEl = document.getElementById('listTerpilih');
-        const emptyEl = document.getElementById('emptyTerpilih');
         const countEl = document.getElementById('jumlahTerpilih');
 
         countEl.textContent = selectedPenerima.size;
@@ -410,7 +416,6 @@
             return;
         }
 
-        // Ambil data dari checkbox
         let html = '';
         document.querySelectorAll('.anggota-checkbox:checked').forEach(cb => {
             const item = cb.closest('.anggota-item');
@@ -451,7 +456,7 @@
         updatePanelTerpilih();
     }
 
-    //  MODAL HAPUS GRUP 
+    // ==================== MODAL HAPUS GRUP ====================
     function bukaModalHapusGrup(id, nama) {
         const modal = document.getElementById('modalHapusGrup');
         const form  = document.getElementById('formHapusGrup');
@@ -466,7 +471,7 @@
         document.body.style.overflow = '';
     }
 
-    // Close on backdrop / ESC
+    // ==================== CLOSE MODAL ====================
     ['modalGrup', 'modalHapusGrup'].forEach(id => {
         document.getElementById(id)?.addEventListener('click', function (e) {
             if (e.target === this) {

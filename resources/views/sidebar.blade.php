@@ -2,12 +2,10 @@
 
     {{-- LOGO --}}
     <div class="px-5 pt-6 pb-5">
-        <div class="bg-white rounded px-3.5 py-3 inline-block shadow-sm">
-            <img src="{{ asset('images/logo-batamindo.png') }}"
-                 alt="Batamindo Investment Cakrawala"
-                 class="h-10 w-auto">
-        </div>
-    </div>
+    <img src="{{ asset('images/logo-batamindo.jpg') }}"
+         alt="Batamindo Investment Cakrawala"
+         class="h-14 w-auto">
+</div>
 
     {{-- NAVIGATION --}}
     <nav class="flex-1 py-2 px-3 space-y-1 text-[13px]">

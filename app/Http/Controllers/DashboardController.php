@@ -13,7 +13,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // ==================== STATISTIK UTAMA ====================
+        //  STATISTIK UTAMA 
         $totalPenerima = Penerima::aktif()->count();
         $totalGrup     = Grup::count();
         $totalEmail    = Email::count();
@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->whereYear('sent_at', now()->year)
             ->count();
 
-        // ==================== AKTIVITAS TERBARU ====================
+        //  AKTIVITAS TERBARU =
         $aktivitasTerbaru = Email::withCount([
                 'emailLog as total_penerima',
                 'emailLog as total_berhasil' => fn($q) => $q->where('status', 'success'),
@@ -43,7 +43,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // ==================== STATISTIK 7 HARI ====================
+        //  STATISTIK 7 HARI 
         $statistik7Hari = Email::select(
                 DB::raw('DATE(sent_at) as tanggal'),
                 DB::raw('COUNT(*) as jumlah')

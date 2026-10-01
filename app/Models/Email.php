@@ -13,6 +13,7 @@ class Email extends Model
     use HasFactory;
 
     protected $table = 'email';
+    protected $primaryKey = 'email_id';        
 
     protected $fillable = [
         'template_id',
@@ -30,73 +31,44 @@ class Email extends Model
         'updated_at' => 'datetime',
     ];
 
-    // ==========================================
-    // RELASI
-    // ==========================================
-
-    /**
-     * Relasi: Email dibuat dari 1 Template (nullable)
-     * Kalau "Buat dari Awal", template_id = NULL
-     */
+    // Relasi: Email dibuat dari 1 Template (nullable)
     public function template(): BelongsTo
     {
-        return $this->belongsTo(TemplateEmail::class, 'template_id');
+        return $this->belongsTo(TemplateEmail::class, 'template_id', 'template_email_id');
     }
 
-    /**
-     * Relasi: Email dikirim ke banyak Penerima (many-to-many)
-     */
+    // Relasi: Email dikirim ke banyak Penerima (many-to-many)
     public function penerima(): BelongsToMany
     {
         return $this->belongsToMany(
             Penerima::class,
             'email_penerima',
-            'email_id',
-            'penerima_id'
+            'email_id',        
+            'penerima_id',     
+            'email_id',        
+            'penerima_id'      
         )->withTimestamps();
     }
 
-    /**
-     * Relasi: Email punya banyak Log pengiriman
-     */
+    // Relasi: Email punya banyak Log pengiriman
     public function emailLog(): HasMany
     {
-        return $this->hasMany(EmailLog::class, 'email_id');
+        return $this->hasMany(EmailLog::class, 'email_id', 'email_id');
     }
 
-    // ==========================================
     // ACCESSOR
-    // ==========================================
-
-    /**
-     * Hitung total penerima
-     */
     public function getTotalPenerimaAttribute(): int
     {
         return $this->emailLog()->count();
     }
 
-    /**
-     * Hitung jumlah berhasil
-     */
     public function getTotalBerhasilAttribute(): int
     {
         return $this->emailLog()->where('status', 'success')->count();
     }
 
-    /**
-     * Hitung jumlah gagal
-     */
     public function getTotalGagalAttribute(): int
     {
         return $this->emailLog()->where('status', 'failed')->count();
-    }
-
-    /**
-     * Cek apakah pakai template
-     */
-    public function getPakaiTemplateAttribute(): bool
-    {
-        return !is_null($this->template_id);
     }
 }

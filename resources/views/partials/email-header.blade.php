@@ -3,7 +3,7 @@
     <div class="flex items-center gap-4">
 
         {{-- LOGO LANGSUNG (TANPA BACKGROUND) --}}
-        <img src="{{ asset('images/logo-batamindo.png') }}"
+        <img src="{{ asset('images/logo-batamindo.jpg') }}"
              alt="Batamindo"
              class="h-14 w-auto object-contain flex-shrink-0">
 

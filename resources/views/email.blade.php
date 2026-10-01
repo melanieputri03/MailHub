@@ -107,7 +107,7 @@
                         <div class="bg-white rounded-sm border border-outline/60 overflow-hidden h-[280px] flex flex-col shadow-sm">
                             <div class="bg-white px-3 py-2 border-b-2 border-maroon">
                                 <div class="flex items-center gap-1.5">
-                                    <img src="{{ asset('images/logo-batamindo.png') }}"
+                                    <img src="{{ asset('images/logo-batamindo.jpg') }}"
                                          alt="BIC"
                                          class="w-4 h-4 object-contain flex-shrink-0">
                                     <div class="flex-1 min-w-0">
@@ -280,7 +280,7 @@
                                 <div class="space-y-1.5">
                                     @foreach($divisi as $d)
                                         <label class="flex items-center gap-3 px-3 py-2 rounded hover:bg-white cursor-pointer transition">
-                                            <input type="checkbox" name="divisi_ids[]" value="{{ $d->id }}"
+                                            <input type="checkbox" name="divisi_ids[]" value="{{ $d->divisi_id }}"
                                                    data-jumlah="{{ $d->penerima()->where('status','active')->count() }}"
                                                    onchange="hitungTotal()"
                                                    class="divisi-checkbox w-4 h-4 rounded accent-gold">
@@ -320,7 +320,7 @@
                                 <div class="space-y-1.5">
                                     @foreach($grup as $g)
                                         <label class="flex items-center gap-3 px-3 py-2 rounded hover:bg-white cursor-pointer transition">
-                                            <input type="checkbox" name="grup_ids[]" value="{{ $g->id }}"
+                                            <input type="checkbox" name="grup_ids[]" value="{{ $g->grup_id }}"
                                                    data-jumlah="{{ $g->penerima_count }}"
                                                    onchange="hitungTotal()"
                                                    class="grup-checkbox w-4 h-4 rounded accent-gold">
@@ -370,7 +370,7 @@
                                         <label class="manual-item flex items-center gap-3 px-3 py-2 hover:bg-cream/50 cursor-pointer"
                                                data-nama="{{ strtolower($p->nama) }}"
                                                data-email="{{ strtolower($p->email) }}">
-                                            <input type="checkbox" name="penerima_ids[]" value="{{ $p->id }}"
+                                            <input type="checkbox" name="penerima_ids[]" value="{{ $p->penerima_id }}"
                                                    onchange="hitungTotal()"
                                                    class="manual-checkbox w-4 h-4 rounded accent-gold">
                                             <div class="flex-1 min-w-0">

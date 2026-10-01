@@ -22,7 +22,7 @@ class GrupController extends Controller
             'nama'           => 'required|string|max:100',
             'deskripsi'      => 'nullable|string',
             'penerima_ids'   => 'nullable|array',
-            'penerima_ids.*' => 'exists:penerima,id',
+            'penerima_ids.*' => 'exists:penerima,penerima_id',         // ← UBAH
         ]);
 
         $grup = Grup::create([
@@ -44,7 +44,7 @@ class GrupController extends Controller
             'nama'           => 'required|string|max:100',
             'deskripsi'      => 'nullable|string',
             'penerima_ids'   => 'nullable|array',
-            'penerima_ids.*' => 'exists:penerima,id',
+            'penerima_ids.*' => 'exists:penerima,penerima_id',         // ← UBAH
         ]);
 
         $grup->update([

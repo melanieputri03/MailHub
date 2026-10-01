@@ -12,7 +12,6 @@ class PenerimaController extends Controller
     {
         $query = Penerima::with('divisi');
 
-        // Filter search (nama / email)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -21,12 +20,10 @@ class PenerimaController extends Controller
             });
         }
 
-        // Filter divisi
         if ($request->filled('divisi_id')) {
             $query->where('divisi_id', $request->divisi_id);
         }
 
-        // Filter status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         } else {
@@ -44,7 +41,7 @@ class PenerimaController extends Controller
         $validated = $request->validate([
             'nama'      => 'required|string|max:150',
             'email'     => 'required|email|max:150|unique:penerima,email',
-            'divisi_id' => 'required|exists:divisi,id',
+            'divisi_id' => 'required|exists:divisi,divisi_id',         // ← UBAH
             'jabatan'   => 'nullable|string|max:150',
             'status'    => 'required|in:active,inactive',
         ]);
@@ -59,8 +56,8 @@ class PenerimaController extends Controller
     {
         $validated = $request->validate([
             'nama'      => 'required|string|max:150',
-            'email'     => 'required|email|max:150|unique:penerima,email,' . $penerima->id,
-            'divisi_id' => 'required|exists:divisi,id',
+            'email'     => 'required|email|max:150|unique:penerima,email,' . $penerima->penerima_id,  // ← UBAH
+            'divisi_id' => 'required|exists:divisi,divisi_id',         // ← UBAH
             'jabatan'   => 'nullable|string|max:150',
             'status'    => 'required|in:active,inactive',
         ]);

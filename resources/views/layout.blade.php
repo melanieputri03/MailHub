@@ -27,7 +27,7 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-batamindo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-batamindo.jpg') }}">
 
     <style>
         html, body { font-family: 'Inter', system-ui, sans-serif; }
@@ -58,7 +58,7 @@
         {{-- HEADER --}}
         <header class="bg-white border-b border-outline px-6 py-3 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo-batamindo.png') }}"
+                <img src="{{ asset('images/logo-batamindo.jpg') }}"
                      alt="Batamindo" class="h-6 w-auto">
                 <h1 class="text-ink font-semibold text-[15px] tracking-tight">MailHub Control Room</h1>
             </div>

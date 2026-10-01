@@ -19,7 +19,7 @@
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
                                     <td style="vertical-align:middle;" width="90">
-                                        <img src="{{ $message->embed(public_path('images/logo-batamindo.png')) }}"
+                                        <img src="{{ $message->embed(public_path('images/logo-batamindo.jpg')) }}"
                                             alt="Batamindo"
                                             style="height:48px; width:auto; display:block;">
                                     </td>
@@ -46,8 +46,8 @@
                             <h2 style="margin:0 0 20px; color:#803033; font-size:18px; text-transform:uppercase; letter-spacing:1px; text-align:center;">
                                 {{ $emailNama }}
                             </h2>
-                            <div style="font-size:13px; color:#202124; line-height:1.75; white-space:pre-line;">
-                                {{ $emailBody }}
+                            <div style="font-size:13px; color:#202124; line-height:1.75;">
+                                {!! nl2br(e($emailBody)) !!}
                             </div>
                         </td>
                     </tr>

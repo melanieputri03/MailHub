@@ -9,15 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('penerima', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('penerima_id');         
             $table->string('nama', 150);
             $table->string('email', 150)->unique();
 
             $table->foreignId('divisi_id')
-                  ->constrained('divisi')
+                  ->constrained('divisi', 'divisi_id')    
                   ->onDelete('restrict');
 
-            $table->string('jabatan', 150)->nullable();  // opsional
+            $table->string('jabatan', 150)->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
 

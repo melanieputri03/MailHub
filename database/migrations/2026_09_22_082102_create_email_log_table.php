@@ -9,15 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('email_log', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('email_log_id');        
+
             $table->foreignId('email_id')
-                  ->constrained('email')
+                  ->constrained('email', 'email_id')      
                   ->onDelete('cascade');
+
             $table->foreignId('penerima_id')
                   ->nullable()
-                  ->constrained('penerima')
+                  ->constrained('penerima', 'penerima_id') 
                   ->onDelete('set null');
-            $table->string('penerima_email', 150);   
+
+            $table->string('penerima_email', 150);
             $table->enum('status', ['success', 'failed']);
             $table->text('error_message')->nullable();
             $table->timestamp('sent_at')->nullable();

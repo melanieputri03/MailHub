@@ -26,7 +26,8 @@ class RiwayatController extends Controller
             $query->where('status', $request->status);
         }
 
-        $riwayat = $query->latest('sent_at')->paginate(20)->withQueryString();
+        // Paginate — 8 per halaman
+        $riwayat = $query->latest('sent_at')->paginate(8)->withQueryString();
 
         return view('riwayat', compact('riwayat'));
     }

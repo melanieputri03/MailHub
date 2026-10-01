@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('divisi', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('divisi_id');         
             $table->string('nama', 100);
             $table->text('deskripsi')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');

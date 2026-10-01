@@ -11,6 +11,7 @@ class EmailLog extends Model
     use HasFactory;
 
     protected $table = 'email_log';
+    protected $primaryKey = 'email_log_id';  
 
     protected $fillable = [
         'email_id',
@@ -27,37 +28,13 @@ class EmailLog extends Model
         'updated_at' => 'datetime',
     ];
 
-    // RELASI
-    /**
-     * Relasi: Log milik 1 Email
-     */
     public function email(): BelongsTo
     {
-        return $this->belongsTo(Email::class, 'email_id');
+        return $this->belongsTo(Email::class, 'email_id', 'email_id');
     }
 
-    /**
-     * Relasi: Log milik 1 Penerima
-     */
     public function penerima(): BelongsTo
     {
-        return $this->belongsTo(Penerima::class, 'penerima_id');
-    }
-
-    // SCOPE
-    /**
-     * Scope: log yang sukses
-     */
-    public function scopeSukses($query)
-    {
-        return $query->where('status', 'success');
-    }
-
-    /**
-     * Scope: log yang gagal
-     */
-    public function scopeGagal($query)
-    {
-        return $query->where('status', 'failed');
+        return $this->belongsTo(Penerima::class, 'penerima_id', 'penerima_id');
     }
 }

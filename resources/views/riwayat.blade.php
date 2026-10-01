@@ -140,7 +140,7 @@
 
                         {{-- Aksi --}}
                         <td class="px-5 py-4 text-right">
-                            <button type="button" onclick="toggleDetail({{ $r->id }})"
+                            <button type="button" onclick="toggleDetail({{ $r->email_id }})"
                                     class="text-[11px] border border-outline rounded px-3 py-1 text-ink
                                            hover:bg-cream transition font-medium">
                                 Detail
@@ -149,7 +149,7 @@
                     </tr>
 
                     {{-- DETAIL ROW (expand) --}}
-                    <tr id="detail-{{ $r->id }}" class="hidden bg-cream/30">
+                    <tr id="detail-{{ $r->email_id }}" class="hidden bg-cream/30">
                         <td colspan="8" class="px-5 py-5">
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -201,6 +201,26 @@
                                             <div class="text-[20px] font-bold text-red-600">{{ $r->total_gagal }}</div>
                                             <div class="text-[10px] text-muted uppercase">Gagal</div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Lihat Isi Email --}}
+                            <div class="bg-white rounded-md border border-outline p-4 mb-4">
+                                <button type="button" onclick="toggleBodyEmail({{ $r->email_id }})"
+                                        class="text-[12px] text-gold font-semibold hover:underline flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    <span id="btn-body-text-{{ $r->email_id }}">Lihat Isi Email</span>
+                                </button>
+
+                                {{-- Body Email (hidden by default) --}}
+                                <div id="body-email-{{ $r->email_id }}" class="hidden mt-4 pt-4 border-t border-outline">
+                                    <div class="text-[10px] text-muted uppercase tracking-wider mb-2">Isi Email:</div>
+                                    <div class="text-[13px] text-ink leading-relaxed whitespace-pre-line bg-cream/30 rounded-md p-4">
+                                        {{ $r->body }}
                                     </div>
                                 </div>
                             </div>
@@ -266,13 +286,55 @@
     </div>
 
     {{-- Pagination --}}
-    <div class="px-5 py-3.5 border-t border-outline flex items-center justify-between flex-wrap gap-3">
-        <span class="text-[11px] text-muted">
-            Menampilkan {{ $riwayat->firstItem() ?? 0 }} - {{ $riwayat->lastItem() ?? 0 }}
-            dari {{ $riwayat->total() }} riwayat
-        </span>
-        <div>{{ $riwayat->links() }}</div>
-    </div>
+<div class="px-5 py-4 border-t border-outline flex items-center justify-between flex-wrap gap-3">
+    <span class="text-[11px] text-muted">
+        Menampilkan {{ $riwayat->firstItem() ?? 0 }} - {{ $riwayat->lastItem() ?? 0 }}
+        dari {{ $riwayat->total() }} riwayat
+    </span>
+
+    @if($riwayat->hasPages())
+        <div class="flex items-center gap-1.5">
+
+            {{-- Tombol Prev --}}
+            @if($riwayat->onFirstPage())
+                <span class="text-[12px] px-3 py-1.5 border border-outline rounded text-muted/40 cursor-not-allowed">
+                    Prev
+                </span>
+            @else
+                <a href="{{ $riwayat->previousPageUrl() }}"
+                   class="text-[12px] px-3 py-1.5 border border-outline rounded text-ink hover:bg-cream transition">
+                    Prev
+                </a>
+            @endif
+
+            {{-- Nomor Halaman --}}
+            @foreach($riwayat->links()->elements[0] as $page => $url)
+                @if($page == $riwayat->currentPage())
+                    <span class="text-[12px] px-3 py-1.5 border border-outline rounded bg-cream text-ink font-semibold">
+                        {{ $page }}
+                    </span>
+                @else
+                    <a href="{{ $url }}"
+                       class="text-[12px] px-3 py-1.5 border border-outline rounded text-muted hover:bg-cream transition">
+                        {{ $page }}
+                    </a>
+                @endif
+            @endforeach
+
+            {{-- Tombol Next --}}
+            @if($riwayat->hasMorePages())
+                <a href="{{ $riwayat->nextPageUrl() }}"
+                   class="text-[12px] px-3 py-1.5 border border-outline rounded text-ink hover:bg-cream transition">
+                    Next
+                </a>
+            @else
+                <span class="text-[12px] px-3 py-1.5 border border-outline rounded text-muted/40 cursor-not-allowed">
+                    Next
+                </span>
+            @endif
+
+        </div>
+    @endif
 </div>
 
 @endsection
@@ -280,9 +342,34 @@
 @push('scripts')
 <script>
     function toggleDetail(id) {
-        const row = document.getElementById('detail-' + id);
-        if (row) {
-            row.classList.toggle('hidden');
+        const currentRow = document.getElementById('detail-' + id);
+        const isCurrentlyOpen = !currentRow.classList.contains('hidden');
+
+        document.querySelectorAll('[id^="detail-"]').forEach(row => {
+            row.classList.add('hidden');
+        });
+
+        document.querySelectorAll('[id^="body-email-"]').forEach(body => {
+            body.classList.add('hidden');
+        });
+        document.querySelectorAll('[id^="btn-body-text-"]').forEach(btn => {
+            btn.textContent = 'Lihat Isi Email';
+        });
+
+        if (!isCurrentlyOpen) {
+            currentRow.classList.remove('hidden');
+        }
+    }
+
+    function toggleBodyEmail(id) {
+        const body = document.getElementById('body-email-' + id);
+        const btn  = document.getElementById('btn-body-text-' + id);
+
+        if (body && btn) {
+            body.classList.toggle('hidden');
+            btn.textContent = body.classList.contains('hidden')
+                ? 'Lihat Isi Email'
+                : 'Sembunyikan Isi Email';
         }
     }
 </script>

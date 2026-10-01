@@ -11,28 +11,28 @@ class Grup extends Model
     use HasFactory;
 
     protected $table = 'grup';
+    protected $primaryKey = 'grup_id';          
 
     protected $fillable = [
         'nama',
         'deskripsi',
     ];
 
-    /**
-     * Relasi: Grup berisi banyak Penerima (many-to-many)
-     */
+
+    // Relasi: Grup berisi banyak Penerima (many-to-many)
     public function penerima(): BelongsToMany
     {
         return $this->belongsToMany(
             Penerima::class,
             'grup_penerima',
-            'grup_id',
-            'penerima_id'
+            'grup_id',         
+            'penerima_id',     
+            'grup_id',         
+            'penerima_id'      
         )->withTimestamps();
     }
 
-    /**
-     * Hitung jumlah anggota (untuk badge)
-     */
+    // Accessor: hitung jumlah anggota
     public function getJumlahAnggotaAttribute(): int
     {
         return $this->penerima()->count();

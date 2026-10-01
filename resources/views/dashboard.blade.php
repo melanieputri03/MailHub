@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{-- ==================== HEADER ==================== --}}
+{{-- HEADER --}}
 <div class="mb-5">
     <h1 class="text-[18px] font-bold text-ink flex items-center gap-2">
         <svg class="w-5 h-5 text-maroon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -17,7 +17,7 @@
     <p class="text-[13px] text-muted mt-1 ml-7">Ringkasan aktivitas pengiriman email internal.</p>
 </div>
 
-{{-- ==================== STAT CARDS ==================== --}}
+{{-- STAT CARDS --}}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
 
     {{-- Total Penerima --}}
@@ -97,7 +97,7 @@
     </div>
 </div>
 
-{{-- ==================== STATISTIK BERHASIL / GAGAL ==================== --}}
+{{-- STATISTIK BERHASIL / GAGAL --}}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
 
     {{-- Berhasil --}}

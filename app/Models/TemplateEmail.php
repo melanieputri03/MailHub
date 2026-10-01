@@ -11,6 +11,7 @@ class TemplateEmail extends Model
     use HasFactory;
 
     protected $table = 'template_email';
+    protected $primaryKey = 'template_email_id';  
 
     protected $fillable = [
         'nama',
@@ -20,17 +21,13 @@ class TemplateEmail extends Model
         'status',
     ];
 
-    /**
-     * Relasi: 1 Template bisa dipakai banyak Email
-     */
+    // Relasi: 1 Template bisa dipakai banyak Email
     public function email(): HasMany
     {
-        return $this->hasMany(Email::class, 'template_id');
+        return $this->hasMany(Email::class, 'template_id', 'template_email_id');
     }
 
-    /**
-     * Scope: hanya template aktif
-     */
+    // Scope: hanya template aktif
     public function scopeAktif($query)
     {
         return $query->where('status', 'active');

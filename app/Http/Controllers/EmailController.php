@@ -14,12 +14,9 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
-    /**
-     * Halaman Buat Email (multi-step)
-     */
     public function index(Request $request)
     {
-        $template = TemplateEmail::aktif()->orderBy('id')->get();
+        $template = TemplateEmail::aktif()->orderBy('template_email_id')->get();  // ← UBAH
         $divisi   = Divisi::where('status', 'active')->orderBy('nama')->get();
         $grup     = Grup::withCount('penerima')->latest()->get();
         $penerima = Penerima::aktif()->with('divisi')->orderBy('nama')->get();
@@ -41,16 +38,13 @@ class EmailController extends Controller
         ));
     }
 
-    /**
-     * Preview email sebelum kirim
-     */
     public function preview(Request $request)
     {
         $data = $request->validate([
             'nama'          => 'required|string',
             'subject'       => 'required|string',
             'body'          => 'required|string',
-            'template_id'   => 'nullable|exists:template_email,id',
+            'template_id'   => 'nullable|exists:template_email,template_email_id',   // ← UBAH
             'penerima_mode' => 'required|in:semua,divisi,grup,manual',
             'divisi_ids'    => 'nullable|array',
             'grup_ids'      => 'nullable|array',
@@ -67,33 +61,29 @@ class EmailController extends Controller
         );
 
         $divisiDipilih = !empty($data['divisi_ids'])
-            ? Divisi::whereIn('id', $data['divisi_ids'])->pluck('nama')->toArray()
+            ? Divisi::whereIn('divisi_id', $data['divisi_ids'])->pluck('nama')->toArray()   // ← UBAH
             : [];
 
         $grupDipilih = !empty($data['grup_ids'])
-            ? Grup::whereIn('id', $data['grup_ids'])->pluck('nama')->toArray()
+            ? Grup::whereIn('grup_id', $data['grup_ids'])->pluck('nama')->toArray()         // ← UBAH
             : [];
 
         return view('preview-email', compact('data', 'penerima', 'divisiDipilih', 'grupDipilih'));
     }
 
-    /**
-     * Kirim email via SMTP
-     */
     public function kirim(Request $request)
     {
         $data = $request->validate([
             'nama'          => 'required|string',
             'subject'       => 'required|string',
             'body'          => 'required|string',
-            'template_id'   => 'nullable|exists:template_email,id',
+            'template_id'   => 'nullable|exists:template_email,template_email_id',   // ← UBAH
             'penerima_mode' => 'required|in:semua,divisi,grup,manual',
             'divisi_ids'    => 'nullable|array',
             'grup_ids'      => 'nullable|array',
             'penerima_ids'  => 'nullable|array',
         ]);
 
-        // Ambil penerima sesuai mode
         $penerima = $this->resolvePenerima(
             $data['penerima_mode'],
             $data['divisi_ids'] ?? [],
@@ -106,7 +96,7 @@ class EmailController extends Controller
                 ->with('error', 'Tidak ada penerima yang valid.');
         }
 
-        // 1. Simpan email ke DB
+        // Simpan email
         $emailRecord = Email::create([
             'template_id' => $data['template_id'] ?: null,
             'nama'        => $data['nama'],
@@ -116,10 +106,9 @@ class EmailController extends Controller
             'sent_at'     => now(),
         ]);
 
-        // 2. Simpan relasi email ↔ penerima (email_penerima)
-        $emailRecord->penerima()->sync($penerima->pluck('id')->toArray());
+        // Simpan relasi email ↔ penerima
+        $emailRecord->penerima()->sync($penerima->pluck('penerima_id')->toArray());   // ← UBAH
 
-        // 3. Kirim email satu per satu + catat log
         $totalBerhasil = 0;
         $totalGagal    = 0;
 
@@ -133,19 +122,18 @@ class EmailController extends Controller
                     ));
 
                 EmailLog::create([
-                    'email_id'       => $emailRecord->id,
-                    'penerima_id'    => $p->id,
+                    'email_id'       => $emailRecord->email_id,       // ← UBAH
+                    'penerima_id'    => $p->penerima_id,              // ← UBAH
                     'penerima_email' => $p->email,
                     'status'         => 'success',
                     'sent_at'        => now(),
                 ]);
 
                 $totalBerhasil++;
-
             } catch (\Throwable $e) {
                 EmailLog::create([
-                    'email_id'       => $emailRecord->id,
-                    'penerima_id'    => $p->id,
+                    'email_id'       => $emailRecord->email_id,       // ← UBAH
+                    'penerima_id'    => $p->penerima_id,              // ← UBAH
                     'penerima_email' => $p->email,
                     'status'         => 'failed',
                     'error_message'  => $e->getMessage(),
@@ -156,22 +144,16 @@ class EmailController extends Controller
             }
         }
 
-        // 4. Update status email (kalau semua gagal)
         if ($totalBerhasil === 0 && $totalGagal > 0) {
             $emailRecord->update(['status' => 'failed']);
         }
 
-        // 5. Hapus draft dari session
         session()->forget('email_draft');
 
-        // 6. Redirect dengan notifikasi
         return redirect()->route('riwayat')
             ->with('success', "Pengiriman selesai: {$totalBerhasil} berhasil, {$totalGagal} gagal.");
     }
 
-    /**
-     * Helper: resolve penerima sesuai mode
-     */
     private function resolvePenerima($mode, $divisiIds, $grupIds, $penerimaIds)
     {
         $query = Penerima::aktif()->with('divisi');
@@ -179,9 +161,9 @@ class EmailController extends Controller
         if ($mode === 'divisi' && !empty($divisiIds)) {
             $query->whereIn('divisi_id', $divisiIds);
         } elseif ($mode === 'grup' && !empty($grupIds)) {
-            $query->whereHas('grup', fn($q) => $q->whereIn('grup.id', $grupIds));
+            $query->whereHas('grup', fn($q) => $q->whereIn('grup.grup_id', $grupIds));   // ← UBAH
         } elseif ($mode === 'manual' && !empty($penerimaIds)) {
-            $query->whereIn('id', $penerimaIds);
+            $query->whereIn('penerima_id', $penerimaIds);                                // ← UBAH
         }
 
         return $query->distinct()->orderBy('nama')->get();

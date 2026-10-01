@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grup', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('grup_id');       
             $table->string('nama', 100);
             $table->text('deskripsi')->nullable();
             $table->timestamps();

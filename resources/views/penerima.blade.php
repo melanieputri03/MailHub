@@ -53,7 +53,7 @@
                        focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition">
             <option value="">Semua Divisi</option>
             @foreach($divisi as $d)
-                <option value="{{ $d->id }}" {{ request('divisi_id') == $d->id ? 'selected' : '' }}>
+                <option value="{{ $d->divisi_id }}" {{ request('divisi_id') == $d->divisi_id ? 'selected' : '' }}>
                     {{ $d->nama }}
                 </option>
             @endforeach
@@ -265,7 +265,7 @@
                                        focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition">
                             <option value="">-- Pilih Divisi --</option>
                             @foreach($divisi as $d)
-                                <option value="{{ $d->id }}">{{ $d->nama }}</option>
+                                <option value="{{ $d->divisi_id }}">{{ $d->nama }}</option>
                             @endforeach
                         </select>
                     </div>
