@@ -56,20 +56,11 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-screen">
 
         {{-- HEADER --}}
-        <header class="bg-white border-b border-outline px-6 py-3 flex items-center justify-between flex-shrink-0">
+        <header class="bg-white border-b border-outline px-9 py-6 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo-batamindo.jpg') }}"
-                     alt="Batamindo" class="h-6 w-auto">
-                <h1 class="text-ink font-semibold text-[15px] tracking-tight">MailHub Control Room</h1>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <button type="button" title="Refresh"
-                        class="w-8 h-8 flex items-center justify-center text-muted hover:text-ink rounded-md hover:bg-cream transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path d="M4 12a8 8 0 1 0 2.3-5.7L4 8"/><path d="M4 3v5h5"/>
-                    </svg>
-                </button>
+                     alt="Batamindo" class="h-9 w-auto">
+                <h1 class="text-ink font-semibold text-[20px] tracking-tight">MailHub Control Room</h1>
             </div>
         </header>
 
@@ -100,7 +91,7 @@
             @yield('content')
         </main>
 
-        {{-- FOOTER (di dalam area main — sejajar header) --}}
+        {{-- FOOTER --}}
         <footer class="bg-white border-t border-outline px-6 py-3 flex justify-between items-center text-[11px] text-muted flex-shrink-0">
             <span>© {{ date('Y') }} Batamindo Investment Cakrawala — BIC MailHub v2.4</span>
             <span>Sistem internal. Tidak untuk didistribusikan.</span>

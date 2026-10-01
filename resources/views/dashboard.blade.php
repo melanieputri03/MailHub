@@ -135,7 +135,7 @@
     </div>
 </div>
 
-{{-- ==================== AKTIVITAS TERBARU ==================== --}}
+{{-- AKTIVITAS TERBARU --}}
 <div class="bg-white rounded-lg border border-outline">
 
     {{-- Header --}}
