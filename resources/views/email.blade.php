@@ -119,7 +119,7 @@
 
                             <div class="flex-1 p-3 overflow-hidden">
                                 <div class="text-center mb-2">
-                                    <div class="text-[8px] font-bold text-maroon uppercase tracking-wider">{{ $tpl->nama }}</div>
+                                    <div class="text-[8px] font-bold text-maroon tracking-wider">{{ $tpl->nama }}</div>
                                 </div>
                                 <div class="text-[6px] text-gray-700 leading-relaxed">
                                     {{ \Illuminate\Support\Str::limit(strip_tags($tpl->body ?? ''), 180) }}
@@ -394,7 +394,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <div class="text-[10px] text-muted uppercase tracking-wider">Total Penerima</div>
+                                <div class="text-[10px] text-muted tracking-wider">Total Penerima</div>
                                 <div class="text-[16px] font-bold text-ink">
                                     <span id="total-penerima">0</span>
                                     <span class="text-[11px] text-muted font-normal ml-1">orang</span>
@@ -420,7 +420,7 @@
                 <div class="sticky top-6">
 
                     <div class="flex items-center justify-between mb-3">
-                        <p class="text-[11px] font-bold text-muted uppercase tracking-wider">Live Preview Email</p>
+                        <p class="text-[11px] font-bold text-muted tracking-wider">Live Preview Email</p>
                         <span class="bg-gold text-white text-[10px] px-2 py-0.5 rounded font-bold tracking-wider">LIVE</span>
                     </div>
 
@@ -429,7 +429,7 @@
 
                         <div class="px-6 py-6 min-h-[280px]">
                             <div class="text-center mb-4">
-                                <h2 class="text-[15px] font-bold text-maroon uppercase tracking-wide" id="previewNama">
+                                <h2 class="text-[15px] font-bold text-maroon tracking-wide" id="previewNama">
                                     EMAIL BARU
                                 </h2>
                             </div>
@@ -442,7 +442,7 @@
                     </div>
 
                     <div class="mt-3 bg-cream/60 border border-outline rounded-md p-3">
-                        <div class="text-[10px] text-muted uppercase tracking-wider mb-1">Subject:</div>
+                        <div class="text-[10px] text-muted tracking-wider mb-1">Subject:</div>
                         <div id="previewSubject" class="text-[12px] font-semibold text-ink">(Belum diisi)</div>
                     </div>
                 </div>
@@ -525,7 +525,7 @@
         const subject = document.getElementById('inputSubject').value;
         const body    = document.getElementById('inputBody').value;
 
-        document.getElementById('previewNama').textContent = nama.trim().toUpperCase() || 'EMAIL BARU';
+        document.getElementById('previewNama').textContent = nama.trim() || 'EMAIL BARU';
         document.getElementById('previewSubject').textContent = subject || '(Belum diisi)';
         document.getElementById('previewBody').textContent = body || 'Isi email akan tampil di sini...';
     }

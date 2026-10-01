@@ -43,7 +43,7 @@
                     {{-- BODY --}}
                     <tr>
                         <td style="padding:32px 24px; min-height:280px;">
-                            <h2 style="margin:0 0 20px; color:#803033; font-size:18px; text-transform:uppercase; letter-spacing:1px; text-align:center;">
+                            <h2 style="margin:0 0 20px; color:#803033; font-size:18px; letter-spacing:1px; text-align:center;">
                                 {{ $emailNama }}
                             </h2>
                             <div style="font-size:13px; color:#202124; line-height:1.75;">
