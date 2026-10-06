@@ -157,7 +157,7 @@
 
                                 {{-- Tombol Hapus (panggil modal) --}}
                                 <button type="button"
-                                        onclick="bukaModalHapus({{ $p->id }}, '{{ addslashes($p->nama) }}')"
+                                        onclick="bukaModalHapus({{ $p->penerima_id }}, '{{ addslashes($p->nama) }}')"
                                         class="w-7 h-7 hover:bg-red-50 rounded flex items-center justify-center text-muted hover:text-red-600 transition"
                                         title="Hapus">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -387,9 +387,9 @@
         if (data) {
             // EDIT MODE
             title.textContent = 'Edit Penerima';
-            form.action = baseUrl + '/' + data.id;
+            form.action = baseUrl + '/' + data.penerima_id;
             document.getElementById('formMethod').value = 'PUT';
-            document.getElementById('formPenerimaId').value = data.id;
+            document.getElementById('formPenerimaId').value = data.penerima_id;
 
             document.getElementById('formNama').value     = data.nama;
             document.getElementById('formEmail').value    = data.email;

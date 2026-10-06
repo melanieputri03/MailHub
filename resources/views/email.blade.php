@@ -497,7 +497,7 @@
         if (mode === 'template') {
             showStep(2);
         } else {
-            prepareStep3({ id: null, nama: 'Manual', subject: '', body: '' });
+            prepareStep3({ template_email_id: null, nama: 'Manual', subject: '', body: '' });   
             showStep(3);
         }
     }
@@ -508,12 +508,12 @@
     }
 
     function prepareStep3(tpl) {
-        document.getElementById('formTemplateId').value = tpl.id || '';
+        document.getElementById('formTemplateId').value = tpl.template_email_id || '';
         document.getElementById('inputNama').value    = tpl.nama === 'Manual' ? '' : (tpl.nama || '');
         document.getElementById('inputSubject').value = tpl.subject || '';
         document.getElementById('inputBody').value    = tpl.body || '';
 
-        document.getElementById('step3-title').textContent = tpl.id
+        document.getElementById('step3-title').textContent = tpl.template_email_id
             ? 'Edit Email — ' + tpl.nama
             : 'Buat Email dari Awal';
 

@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{--  HEADER  --}}
+{{-- HEADER --}}
 <div class="flex items-start justify-between gap-4 mb-5">
     <div class="flex-1 min-w-0">
         <h1 class="text-[18px] font-bold text-ink flex items-center gap-2">
@@ -38,7 +38,7 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[calc(100vh-140px)]">
 
-    {{--  KIRI: PREVIEW EMAIL (2/3)  --}}
+    {{-- KIRI: PREVIEW EMAIL (2/3) --}}
     <div class="lg:col-span-2">
         <div class="bg-white border border-outline rounded-lg overflow-hidden shadow-sm h-full flex flex-col">
 
@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    {{--  KANAN: INFO PENERIMA (1/3)  --}}
+    {{-- KANAN: INFO PENERIMA (1/3) --}}
     <div class="lg:col-span-1 flex flex-col h-full">
         <div class="space-y-4 flex-1">
 
@@ -177,9 +177,9 @@
                     @endforeach
                 @endif
 
-                <button type="submit"
+                <button type="button"
                         @if($penerima->count() === 0) disabled @endif
-                        onclick="return konfirmasiKirim(event, {{ $penerima->count() }})"
+                        onclick="bukaModalKonfirmasi()"
                         class="w-full bg-gold hover:bg-goldD disabled:bg-muted disabled:cursor-not-allowed
                             text-white text-[13px] font-semibold px-5 py-3 rounded-md
                             flex items-center justify-center gap-2 shadow-sm transition">
@@ -211,16 +211,92 @@
     </div>
 </div>
 
+
+{{-- ==================== MODAL KONFIRMASI KIRIM ==================== --}}
+<div id="modalKonfirmasiKirim" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-2xl w-full max-w-md border border-outline">
+
+        {{-- BODY --}}
+        <div class="px-6 py-6 flex flex-col items-center text-center">
+
+            {{-- Icon --}}
+            <div class="w-16 h-16 bg-gold/15 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-gold" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+            </div>
+
+            {{-- Judul --}}
+            <h3 class="font-bold text-[17px] text-ink mb-2">Kirim Email?</h3>
+
+            {{-- Deskripsi --}}
+            <p class="text-[13px] text-muted leading-relaxed">
+                Email akan dikirim ke
+            </p>
+
+            {{-- Jumlah Penerima --}}
+            <p class="text-[28px] font-bold text-gold mt-1 mb-2">
+                {{ $penerima->count() }} Penerima
+            </p>
+
+            {{-- Info Detail --}}
+            <div class="bg-cream/60 border border-outline rounded-md px-4 py-3 text-[12px] text-ink leading-relaxed mt-2 mb-1 w-full text-left">
+                <div><strong>Subject:</strong> {{ $data['subject'] }}</div>
+                <div class="mt-1 text-muted">Proses ini tidak dapat dibatalkan.</div>
+            </div>
+        </div>
+
+        {{-- FOOTER --}}
+        <div class="px-6 py-4 border-t border-outline grid grid-cols-2 gap-3">
+            <button type="button" onclick="tutupModalKonfirmasi()"
+                    class="bg-white border border-outline text-[13px] text-ink px-5 py-3 rounded-md hover:bg-cream transition font-medium">
+                Batal
+            </button>
+            <button type="button" onclick="submitFormKirim()"
+                    class="bg-gold hover:bg-goldD text-white text-[13px] font-semibold px-5 py-3 rounded-md
+                           flex items-center justify-center gap-2 transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+                Ya, Kirim Sekarang
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-    function konfirmasiKirim(e, jumlah) {
-        if (jumlah === 0) {
-            e.preventDefault();
-            return false;
-        }
-        return confirm('Kirim email ini ke ' + jumlah + ' penerima?\n\nProses tidak dapat dibatalkan.');
+    // ==================== MODAL KONFIRMASI KIRIM ====================
+    function bukaModalKonfirmasi() {
+        const modal = document.getElementById('modalKonfirmasiKirim');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
+
+    function tutupModalKonfirmasi() {
+        const modal = document.getElementById('modalKonfirmasiKirim');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function submitFormKirim() {
+        // Tutup modal dulu
+        tutupModalKonfirmasi();
+
+        // Submit form
+        document.getElementById('formKirim').submit();
+    }
+
+    // Close on backdrop click
+    document.getElementById('modalKonfirmasiKirim')?.addEventListener('click', function (e) {
+        if (e.target === this) tutupModalKonfirmasi();
+    });
+
+    // Close on ESC
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') tutupModalKonfirmasi();
+    });
 </script>
 @endpush

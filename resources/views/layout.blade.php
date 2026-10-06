@@ -94,7 +94,6 @@
         {{-- FOOTER --}}
         <footer class="bg-white border-t border-outline px-6 py-3 flex justify-between items-center text-[11px] text-muted flex-shrink-0">
             <span>© {{ date('Y') }} Batamindo Investment Cakrawala — BIC MailHub v2.4</span>
-            <span>Sistem internal. Tidak untuk didistribusikan.</span>
         </footer>
 
     </div>

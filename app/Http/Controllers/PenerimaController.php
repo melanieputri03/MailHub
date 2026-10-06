@@ -41,7 +41,7 @@ class PenerimaController extends Controller
         $validated = $request->validate([
             'nama'      => 'required|string|max:150',
             'email'     => 'required|email|max:150|unique:penerima,email',
-            'divisi_id' => 'required|exists:divisi,divisi_id',         // ← UBAH
+            'divisi_id' => 'required|exists:divisi,divisi_id',
             'jabatan'   => 'nullable|string|max:150',
             'status'    => 'required|in:active,inactive',
         ]);
@@ -56,8 +56,8 @@ class PenerimaController extends Controller
     {
         $validated = $request->validate([
             'nama'      => 'required|string|max:150',
-            'email'     => 'required|email|max:150|unique:penerima,email,' . $penerima->penerima_id,  // ← UBAH
-            'divisi_id' => 'required|exists:divisi,divisi_id',         // ← UBAH
+            'email'     => 'required|email|max:150|unique:penerima,email,' . $penerima->penerima_id . ',penerima_id',  // ← TAMBAH ,penerima_id
+            'divisi_id' => 'required|exists:divisi,divisi_id',
             'jabatan'   => 'nullable|string|max:150',
             'status'    => 'required|in:active,inactive',
         ]);
