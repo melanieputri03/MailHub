@@ -47,7 +47,7 @@
                                 {{ $emailNama }}
                             </h2>
                             <div style="font-size:13px; color:#202124; line-height:1.75;">
-                                {!! nl2br(e($emailBody)) !!}
+                                {!! $emailBody !!}
                             </div>
                         </td>
                     </tr>

@@ -40,6 +40,7 @@
 <div id="step-1">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+        {{-- Mode Template --}}
         <button type="button" onclick="pilihMode('template')"
                 class="text-left bg-white border border-outline rounded-xl p-8 hover:border-gold hover:shadow-lg transition group">
             <div class="w-16 h-16 bg-maroon/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-maroon transition">
@@ -60,6 +61,7 @@
             </div>
         </button>
 
+        {{-- Mode Manual --}}
         <button type="button" onclick="pilihMode('manual')"
                 class="text-left bg-white border border-outline rounded-xl p-8 hover:border-gold hover:shadow-lg transition group">
             <div class="w-16 h-16 bg-gold/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-gold transition">
@@ -119,7 +121,7 @@
 
                             <div class="flex-1 p-3 overflow-hidden">
                                 <div class="text-center mb-2">
-                                    <div class="text-[8px] font-bold text-maroon tracking-wider">{{ $tpl->nama }}</div>
+                                    <div class="text-[8px] font-bold text-maroon uppercase tracking-wider">{{ $tpl->nama }}</div>
                                 </div>
                                 <div class="text-[6px] text-gray-700 leading-relaxed">
                                     {{ \Illuminate\Support\Str::limit(strip_tags($tpl->body ?? ''), 180) }}
@@ -158,9 +160,9 @@
     @endif
 </div>
 
-
 {{-- STEP 3: EDIT EMAIL + PILIH PENERIMA --}}
 <div id="step-3" class="hidden">
+
     <div class="flex items-center justify-between mb-5">
         <div>
             <h2 class="text-[15px] font-bold text-ink" id="step3-title">Edit Email</h2>
@@ -181,8 +183,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
+            {{-- ============ KIRI: FORM (3/5) ============ --}}
             <div class="lg:col-span-3 space-y-5">
 
+                {{-- Nama Internal --}}
                 <div class="bg-white rounded-lg border border-outline p-5">
                     <label class="text-[12px] font-semibold text-ink">
                         Nama / Judul Email (Internal) <span class="text-red-500">*</span>
@@ -195,6 +199,7 @@
                     <p class="text-[11px] text-muted mt-1.5">Hanya untuk arsip internal.</p>
                 </div>
 
+                {{-- Subject --}}
                 <div class="bg-white rounded-lg border border-outline p-5">
                     <label class="text-[12px] font-semibold text-ink">
                         Subject Email <span class="text-red-500">*</span>
@@ -206,25 +211,14 @@
                                   focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition">
                 </div>
 
+                {{-- Isi Email (TinyMCE) --}}
                 <div class="bg-white rounded-lg border border-outline p-5">
                     <label class="text-[12px] font-semibold text-ink">
                         Isi Email <span class="text-red-500">*</span>
                     </label>
 
-                    <div class="border border-outline rounded-md mt-1.5 overflow-hidden">
-                        <div class="bg-cream/70 border-b border-outline px-3 py-1.5 flex flex-wrap items-center gap-0.5">
-                            <button type="button" class="w-7 h-7 hover:bg-white rounded text-ink font-bold text-[13px]">B</button>
-                            <button type="button" class="w-7 h-7 hover:bg-white rounded text-ink italic text-[13px]">I</button>
-                            <button type="button" class="w-7 h-7 hover:bg-white rounded text-ink underline text-[13px]">U</button>
-                            <span class="w-px h-5 bg-outline mx-1"></span>
-                        </div>
-
-                        <textarea name="body" id="inputBody" required
-                                  oninput="updatePreview()"
-                                  rows="12"
-                                  placeholder="Tulis isi email di sini..."
-                                  class="w-full px-4 py-3 text-[13px] text-ink leading-relaxed
-                                         focus:outline-none resize-none bg-white"></textarea>
+                    <div class="mt-1.5">
+                        <textarea name="body" id="inputBody" required></textarea>
                     </div>
                 </div>
 
@@ -240,6 +234,7 @@
 
                     <div class="space-y-3">
 
+                        {{-- Mode 1: Semua --}}
                         <label class="block p-4 border border-outline rounded-md hover:border-gold cursor-pointer transition">
                             <div class="flex items-start gap-3">
                                 <input type="radio" name="penerima_mode" value="semua"
@@ -254,6 +249,7 @@
                             </div>
                         </label>
 
+                        {{-- Mode 2: Divisi --}}
                         <div class="border border-outline rounded-md">
                             <label class="block p-4 cursor-pointer">
                                 <div class="flex items-start gap-3">
@@ -294,6 +290,7 @@
                             </div>
                         </div>
 
+                        {{-- Mode 3: Grup --}}
                         <div class="border border-outline rounded-md">
                             <label class="block p-4 cursor-pointer">
                                 <div class="flex items-start gap-3">
@@ -340,6 +337,7 @@
                             </div>
                         </div>
 
+                        {{-- Mode 4: Manual --}}
                         <div class="border border-outline rounded-md">
                             <label class="block p-4 cursor-pointer">
                                 <div class="flex items-start gap-3">
@@ -385,6 +383,7 @@
                         </div>
                     </div>
 
+                    {{-- Counter --}}
                     <div class="mt-4 pt-4 border-t border-outline flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center">
@@ -394,7 +393,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <div class="text-[10px] text-muted tracking-wider">Total Penerima</div>
+                                <div class="text-[10px] text-muted uppercase tracking-wider">Total Penerima</div>
                                 <div class="text-[16px] font-bold text-ink">
                                     <span id="total-penerima">0</span>
                                     <span class="text-[11px] text-muted font-normal ml-1">orang</span>
@@ -404,6 +403,7 @@
                     </div>
                 </div>
 
+                {{-- Tombol Lanjut Preview --}}
                 <div class="flex justify-end">
                     <button type="submit"
                             class="bg-gold hover:bg-goldD text-white text-[13px] font-semibold px-6 py-3 rounded-md
@@ -416,11 +416,12 @@
                 </div>
             </div>
 
+            {{-- ============ KANAN: LIVE PREVIEW (2/5) ============ --}}
             <div class="lg:col-span-2">
                 <div class="sticky top-6">
 
                     <div class="flex items-center justify-between mb-3">
-                        <p class="text-[11px] font-bold text-muted tracking-wider">Live Preview Email</p>
+                        <p class="text-[11px] font-bold text-muted uppercase tracking-wider">Live Preview Email</p>
                         <span class="bg-gold text-white text-[10px] px-2 py-0.5 rounded font-bold tracking-wider">LIVE</span>
                     </div>
 
@@ -433,7 +434,7 @@
                                     EMAIL BARU
                                 </h2>
                             </div>
-                            <div id="previewBody" class="text-[12px] text-ink leading-relaxed whitespace-pre-line">
+                            <div id="previewBody" class="text-[12px] text-ink leading-relaxed">
                                 Isi email akan tampil di sini...
                             </div>
                         </div>
@@ -442,7 +443,7 @@
                     </div>
 
                     <div class="mt-3 bg-cream/60 border border-outline rounded-md p-3">
-                        <div class="text-[10px] text-muted tracking-wider mb-1">Subject:</div>
+                        <div class="text-[10px] text-muted uppercase tracking-wider mb-1">Subject:</div>
                         <div id="previewSubject" class="text-[12px] font-semibold text-ink">(Belum diisi)</div>
                     </div>
                 </div>
@@ -457,6 +458,7 @@
 <script>
     let currentStep = 1;
 
+    // STEP NAVIGATION
     function showStep(step) {
         currentStep = step;
         document.getElementById('step-1').classList.toggle('hidden', step !== 1);
@@ -493,26 +495,41 @@
 
     function kembaliKeStep(step) { showStep(step); }
 
+    // STEP 1: PILIH MODE
     function pilihMode(mode) {
         if (mode === 'template') {
             showStep(2);
         } else {
-            prepareStep3({ template_email_id: null, nama: 'Manual', subject: '', body: '' });   
+            prepareStep3({ 
+                template_email_id: null,        // ← Manual
+                nama: 'Manual', 
+                subject: '', 
+                body: '' 
+            });
             showStep(3);
         }
     }
 
+    // STEP 2: PILIH TEMPLATE
     function pilihTemplate(tpl) {
         prepareStep3(tpl);
         showStep(3);
     }
 
+    // STEP 3: PREPARE FORM
     function prepareStep3(tpl) {
+        // Set hidden input template_id
         document.getElementById('formTemplateId').value = tpl.template_email_id || '';
         document.getElementById('inputNama').value    = tpl.nama === 'Manual' ? '' : (tpl.nama || '');
         document.getElementById('inputSubject').value = tpl.subject || '';
-        document.getElementById('inputBody').value    = tpl.body || '';
 
+        // Set body ke TinyMCE (content)
+        const bodyContent = (tpl.body || '').replace(/\n/g, '<br>');
+        if (typeof tinymce !== 'undefined' && tinymce.get('inputBody')) {
+            tinymce.get('inputBody').setContent(bodyContent);
+        }
+
+        // Set judul Step 3
         document.getElementById('step3-title').textContent = tpl.template_email_id
             ? 'Edit Email — ' + tpl.nama
             : 'Buat Email dari Awal';
@@ -520,16 +537,23 @@
         updatePreview();
     }
 
+    // LIVE PREVIEW
     function updatePreview() {
         const nama    = document.getElementById('inputNama').value;
         const subject = document.getElementById('inputSubject').value;
-        const body    = document.getElementById('inputBody').value;
+
+        // Ambil body dari TinyMCE
+        let body = '';
+        if (typeof tinymce !== 'undefined' && tinymce.get('inputBody')) {
+            body = tinymce.get('inputBody').getContent();
+        }
 
         document.getElementById('previewNama').textContent = nama.trim() || 'EMAIL BARU';
         document.getElementById('previewSubject').textContent = subject || '(Belum diisi)';
-        document.getElementById('previewBody').textContent = body || 'Isi email akan tampil di sini...';
+        document.getElementById('previewBody').innerHTML = body || 'Isi email akan tampil di sini...';
     }
 
+    // ==================== PENERIMA MODE ====================
     function switchMode(mode) {
         document.getElementById('panel-divisi').classList.add('hidden');
         document.getElementById('panel-grup').classList.add('hidden');
@@ -596,14 +620,44 @@
         if (cbAllGrup) cbAllGrup.checked = (totalGrup > 0 && totalGrup === checkedGrup);
     }
 
-    // INIT 
+    // INIT
     document.addEventListener('DOMContentLoaded', function () {
+
+        // Init TinyMCE
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: '#inputBody',
+                height: 380,
+                menubar: false,
+                branding: false,
+                plugins: 'lists link',
+                toolbar: 'undo redo | bold italic underline | bullist numlist | link | removeformat',
+                toolbar_mode: 'wrap',
+                placeholder: 'Tulis isi email di sini...',
+                content_style: 'body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.75; color: #202124; padding: 12px 16px; }',
+                setup: function (editor) {
+                    editor.on('change keyup', function () {
+                        updatePreview();
+                        editor.save();
+                    });
+                }
+            });
+        } else {
+            console.error('TinyMCE tidak ke-load. Cek script di layout.blade.php');
+        }
+
+        // Load draft atau selected template
         @if(isset($draft) && $draft)
-            // LOAD DRAFT DARI SESSION 
+            // === LOAD DRAFT DARI SESSION ===
             document.getElementById('formTemplateId').value = '{{ $draft["template_id"] ?? "" }}';
             document.getElementById('inputNama').value      = @json($draft['nama'] ?? '');
             document.getElementById('inputSubject').value   = @json($draft['subject'] ?? '');
-            document.getElementById('inputBody').value      = @json($draft['body'] ?? '');
+
+            // Set body ke TinyMCE
+            const bodyDraft = @json($draft['body'] ?? '');
+            if (typeof tinymce !== 'undefined' && tinymce.get('inputBody')) {
+                tinymce.get('inputBody').setContent(bodyDraft);
+            }
 
             const mode = '{{ $draft["penerima_mode"] ?? "semua" }}';
             const radio = document.querySelector(`input[name="penerima_mode"][value="${mode}"]`);
@@ -635,7 +689,7 @@
 
         @elseif($selectedTemplate)
             prepareStep3({
-                id: {{ $selectedTemplate->id }},
+                template_email_id: {{ $selectedTemplate->template_email_id }},
                 nama: @json($selectedTemplate->nama),
                 subject: @json($selectedTemplate->subject),
                 body: @json($selectedTemplate->body),

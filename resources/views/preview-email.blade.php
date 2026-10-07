@@ -48,7 +48,7 @@
                 <div class="text-center mb-6">
                     <h2 class="text-[20px] font-bold text-maroon tracking-wide">{{ $data['nama'] }}</h2>
                 </div>
-                <div class="text-[13px] text-ink leading-relaxed whitespace-pre-line">{{ $data['body'] }}</div>
+                <div class="text-[13px] text-ink leading-relaxed">{!! $data['body'] !!}</div>
             </div>
 
             @include('partials.email-footer')
@@ -212,7 +212,7 @@
 </div>
 
 
-{{-- ==================== MODAL KONFIRMASI KIRIM ==================== --}}
+{{-- MODAL KONFIRMASI KIRIM --}}
 <div id="modalKonfirmasiKirim" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-md border border-outline">
 
@@ -268,7 +268,7 @@
 
 @push('scripts')
 <script>
-    // ==================== MODAL KONFIRMASI KIRIM ====================
+    // MODAL KONFIRMASI KIRIM
     function bukaModalKonfirmasi() {
         const modal = document.getElementById('modalKonfirmasiKirim');
         modal.classList.remove('hidden');
