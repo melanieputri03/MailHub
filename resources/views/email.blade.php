@@ -37,7 +37,7 @@
 </div>
 
 {{-- STEP 1: PILIH MODE --}}
-<div id="step-1">
+<div id="step-1" class="hidden">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {{-- Mode Template --}}
@@ -218,7 +218,7 @@
                     </label>
 
                     <div class="mt-1.5">
-                        <textarea name="body" id="inputBody" required></textarea>
+                        <textarea name="body" id="inputBody"></textarea>
                     </div>
                 </div>
 
@@ -501,7 +501,7 @@
             showStep(2);
         } else {
             prepareStep3({ 
-                template_email_id: null,        // ← Manual
+                template_email_id: null,     
                 nama: 'Manual', 
                 subject: '', 
                 body: '' 
@@ -553,7 +553,7 @@
         document.getElementById('previewBody').innerHTML = body || 'Isi email akan tampil di sini...';
     }
 
-    // ==================== PENERIMA MODE ====================
+    // PENERIMA MODE
     function switchMode(mode) {
         document.getElementById('panel-divisi').classList.add('hidden');
         document.getElementById('panel-grup').classList.add('hidden');
@@ -621,34 +621,39 @@
     }
 
     // INIT
-    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
 
-        // Init TinyMCE
-        if (typeof tinymce !== 'undefined') {
-            tinymce.init({
-                selector: '#inputBody',
-                height: 380,
-                menubar: false,
-                branding: false,
-                plugins: 'lists link',
-                toolbar: 'undo redo | bold italic underline | bullist numlist | link | removeformat',
-                toolbar_mode: 'wrap',
-                placeholder: 'Tulis isi email di sini...',
-                content_style: 'body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.75; color: #202124; padding: 12px 16px; }',
-                setup: function (editor) {
-                    editor.on('change keyup', function () {
-                        updatePreview();
-                        editor.save();
-                    });
-                }
-            });
-        } else {
-            console.error('TinyMCE tidak ke-load. Cek script di layout.blade.php');
-        }
+    if (typeof tinymce !== 'undefined') {
+        tinymce.init({
+            selector: '#inputBody',
+            height: 380,
+            menubar: false,
+            branding: false,
+            plugins: 'lists link',
+            toolbar: 'undo redo | bold italic underline | bullist numlist | link | removeformat',
+            toolbar_mode: 'wrap',
+            placeholder: 'Tulis isi email di sini...',
+            content_style: 'body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.75; color: #202124; padding: 12px 16px; }',
+            setup: function (editor) {
+                editor.on('change keyup', function () {
+                    updatePreview();
+                    editor.save();
+                });
+            },
+            init_instance_callback: function (editor) {
+                loadDataToForm();
+            }
+        });
+    } else {
+        console.error('TinyMCE tidak ke-load. Cek script di layout.blade.php');
+        loadDataToForm();
+    }
+});
 
-        // Load draft atau selected template
+    // FUNGSI LOAD DATA
+    function loadDataToForm() {
+
         @if(isset($draft) && $draft)
-            // === LOAD DRAFT DARI SESSION ===
             document.getElementById('formTemplateId').value = '{{ $draft["template_id"] ?? "" }}';
             document.getElementById('inputNama').value      = @json($draft['nama'] ?? '');
             document.getElementById('inputSubject').value   = @json($draft['subject'] ?? '');
@@ -659,26 +664,27 @@
                 tinymce.get('inputBody').setContent(bodyDraft);
             }
 
+            // Set mode penerima
             const mode = '{{ $draft["penerima_mode"] ?? "semua" }}';
-            const radio = document.querySelector(`input[name="penerima_mode"][value="${mode}"]`);
+            const radio = document.querySelector('input[name="penerima_mode"][value="' + mode + '"]');
             if (radio) radio.checked = true;
             switchMode(mode);
 
             @if(!empty($draft['divisi_ids']))
                 @foreach($draft['divisi_ids'] as $id)
-                    { const el = document.querySelector('.divisi-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
+                { const el = document.querySelector('.divisi-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
                 @endforeach
             @endif
 
             @if(!empty($draft['grup_ids']))
                 @foreach($draft['grup_ids'] as $id)
-                    { const el = document.querySelector('.grup-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
+                { const el = document.querySelector('.grup-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
                 @endforeach
             @endif
 
             @if(!empty($draft['penerima_ids']))
                 @foreach($draft['penerima_ids'] as $id)
-                    { const el = document.querySelector('.manual-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
+                { const el = document.querySelector('.manual-checkbox[value="{{ $id }}"]'); if (el) el.checked = true; }
                 @endforeach
             @endif
 
@@ -687,12 +693,12 @@
             updatePreview();
             hitungTotal();
 
-        @elseif($selectedTemplate)
+        @elseif(isset($selectedTemplate) && $selectedTemplate)
             prepareStep3({
                 template_email_id: {{ $selectedTemplate->template_email_id }},
                 nama: @json($selectedTemplate->nama),
                 subject: @json($selectedTemplate->subject),
-                body: @json($selectedTemplate->body),
+                body: @json($selectedTemplate->body)
             });
             showStep(3);
             hitungTotal();
@@ -701,6 +707,6 @@
             showStep(1);
             hitungTotal();
         @endif
-    });
+    }
 </script>
 @endpush
