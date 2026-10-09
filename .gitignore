@@ -25,3 +25,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Ignore uploaded attachments (file PDF, gambar, dll dari user)
+/public/uploads/email-attachments/*
+!/public/uploads/email-attachments/.gitkeep

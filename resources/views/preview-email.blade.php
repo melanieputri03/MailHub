@@ -71,6 +71,35 @@
                 <div class="text-[13px] font-semibold text-ink">{{ $data['nama'] }}</div>
             </div>
 
+            {{-- INFO LAMPIRAN --}}
+            @if(!empty($data['attachments']) && count($data['attachments']) > 0)
+                <div class="bg-white rounded-lg border border-outline p-4">
+                    <div class="text-[10px] text-muted uppercase tracking-wider mb-2">
+                        Lampiran ({{ count($data['attachments']) }})
+                    </div>
+                    <div class="space-y-1.5">
+                        @foreach($data['attachments'] as $att)
+                            @php
+                                $ext = pathinfo($att['original'], PATHINFO_EXTENSION);
+                                $icon = match(strtolower($ext)) {
+                                    'pdf' => '📄',
+                                    'doc', 'docx' => '📝',
+                                    'xls', 'xlsx' => '📊',
+                                    'ppt', 'pptx' => '📽️',
+                                    'jpg', 'jpeg', 'png', 'gif' => '🖼️',
+                                    'zip' => '🗜️',
+                                };
+                                $size = round($att['size'] / 1024 / 1024, 2);
+                            @endphp
+                            <div class="flex items-center justify-between text-[11px] bg-cream/60 rounded-md px-3 py-2">
+                                <span class="text-ink truncate">{{ $icon }} {{ $att['original'] }}</span>
+                                <span class="text-muted flex-shrink-0 ml-2">{{ $size }} MB</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- Ringkasan Penerima --}}
             <div class="bg-white rounded-lg border border-outline p-4">
                 <div class="text-[10px] text-muted uppercase tracking-wider mb-2">Penerima</div>
@@ -160,6 +189,14 @@
                 <input type="hidden" name="body"          value="{{ $data['body'] }}">
                 <input type="hidden" name="template_id"   value="{{ $data['template_id'] ?? '' }}">
                 <input type="hidden" name="penerima_mode" value="{{ $data['penerima_mode'] }}">
+
+                @if(!empty($data['attachments']))
+                        @foreach($data['attachments'] as $i => $att)
+                            <input type="hidden" name="attachments[{{ $i }}][filename]" value="{{ $att['filename'] }}">
+                            <input type="hidden" name="attachments[{{ $i }}][original]" value="{{ $att['original'] }}">
+                            <input type="hidden" name="attachments[{{ $i }}][size]"     value="{{ $att['size'] }}">
+                        @endforeach
+                    @endif
 
                 @if(!empty($data['divisi_ids']))
                     @foreach($data['divisi_ids'] as $id)

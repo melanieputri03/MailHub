@@ -219,8 +219,8 @@
                                 {{-- Body Email (hidden by default) --}}
                                 <div id="body-email-{{ $r->email_id }}" class="hidden mt-4 pt-4 border-t border-outline">
                                     <div class="text-[10px] text-muted uppercase tracking-wider mb-2">Isi Email:</div>
-                                    <div class="text-[13px] text-ink leading-relaxed whitespace-pre-line bg-cream/30 rounded-md p-4">
-                                        {{ $r->body }}
+                                    <div class="text-[13px] text-ink leading-relaxed bg-cream/30 rounded-md p-4">
+                                        {!! $r->body !!}
                                     </div>
                                 </div>
                             </div>

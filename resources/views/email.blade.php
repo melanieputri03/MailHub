@@ -177,13 +177,13 @@
         </button>
     </div>
 
-    <form id="formEmail" method="POST" action="{{ route('email.preview') }}">
+    <form id="formEmail" method="POST" action="{{ route('email.preview') }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="template_id" id="formTemplateId" value="">
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-            {{-- ============ KIRI: FORM (3/5) ============ --}}
+            {{-- KIRI: FORM (3/5) --}}
             <div class="lg:col-span-3 space-y-5">
 
                 {{-- Nama Internal --}}
@@ -219,6 +219,104 @@
 
                     <div class="mt-1.5">
                         <textarea name="body" id="inputBody"></textarea>
+                    </div>
+                </div>
+
+                {{-- LAMPIRAN FILE (DRAG & DROP) --}}
+                <div class="bg-white rounded-lg border border-outline p-5">
+                    <label class="text-[12px] font-semibold text-ink">
+                        Lampiran File (Opsional)
+                    </label>
+
+                    {{-- Drop Zone --}}
+                    <div id="dropZone"
+                        class="mt-1.5 border-2 border-dashed border-outline rounded-md p-8 text-center
+                                hover:border-gold hover:bg-gold/5 transition cursor-pointer">
+                        <div class="text-[13px] text-ink font-semibold">
+                            Drag & drop file di sini
+                        </div>
+                        <div class="text-[11px] text-muted mt-1">
+                            atau <span class="text-gold font-semibold underline">klik untuk pilih file</span>
+                        </div>
+                        <div class="text-[10px] text-muted mt-2">
+                            PDF, Word, Excel, PPT, Gambar, ZIP. Max 3 MB per file, total 10 MB.
+                        </div>
+                    </div>
+
+                    {{-- Hidden Input File --}}
+                    <input type="file"
+                        name="attachments[]"
+                        id="inputAttachments"
+                        multiple
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip"
+                        class="hidden">
+
+                {{-- ⚡ FILE YANG SUDAH DIPILIH (dari session/draft) --}}
+                @if(isset($draft['attachments']) && count($draft['attachments']) > 0)
+                    <div id="existingFiles" class="mt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                                File Terlampir (<span id="existingCount">{{ count($draft['attachments']) }}</span>):
+                            </div>
+                            <button type="button" onclick="hapusSemuaExisting()"
+                                    class="text-[11px] text-red-500 font-semibold hover:text-red-700">
+                                ✕ Hapus Semua
+                            </button>
+                        </div>
+                <div id="existingList" class="space-y-1.5">
+                    @foreach($draft['attachments'] as $i => $att)
+                        @php
+                            $ext = pathinfo($att['original'], PATHINFO_EXTENSION);
+                            $icon = match(strtolower($ext)) {
+                                'pdf' => '📄',
+                                'doc', 'docx' => '📝',
+                                'xls', 'xlsx' => '📊',
+                                'ppt', 'pptx' => '📽️',
+                                'jpg', 'jpeg', 'png', 'gif' => '🖼️',
+                                'zip' => '🗜️',
+                                default => '📎',
+                            };
+                            $size = round($att['size'] / 1024 / 1024, 2);
+                        @endphp
+                <div class="flex items-center justify-between text-[12px] bg-cream/60 rounded-md px-3 py-2 existing-file-item"
+                     data-index="{{ $i }}">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <span class="flex-shrink-0">{{ $icon }}</span>
+                        <span class="text-ink truncate">{{ $att['original'] }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span class="text-muted text-[11px]">{{ $size }} MB</span>
+                        <button type="button"
+                                onclick="hapusExistingFile({{ $i }})"
+                                class="text-red-500 hover:text-red-700 w-5 h-5 flex items-center justify-center rounded hover:bg-red-50">
+                            ✕
+                        </button>
+                    </div>
+                    {{-- ⚡ Hidden input supaya file ini tetap ke-submit ke server --}}
+                        <input type="hidden" name="existing_attachments[{{ $i }}][filename]" value="{{ $att['filename'] }}">
+                        <input type="hidden" name="existing_attachments[{{ $i }}][original]" value="{{ $att['original'] }}">
+                        <input type="hidden" name="existing_attachments[{{ $i }}][size]"     value="{{ $att['size'] }}">
+                    </div>
+                        @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                    {{-- Preview File --}}
+                    <div id="filePreview" class="mt-4 hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                                File Terpilih (<span id="fileCount">0</span>):
+                            </div>
+                            <button type="button" onclick="hapusSemuaFile()"
+                                    class="text-[11px] text-red-500 font-semibold hover:text-red-700">
+                                ✕ Hapus Semua
+                            </button>
+                        </div>
+                        <div id="fileList" class="space-y-1.5"></div>
+                        <div class="mt-2 text-[11px] text-muted text-right">
+                            Total: <span id="totalSize" class="font-semibold text-ink">0 MB</span>
+                        </div>
                     </div>
                 </div>
 
@@ -552,6 +650,201 @@
         document.getElementById('previewSubject').textContent = subject || '(Belum diisi)';
         document.getElementById('previewBody').innerHTML = body || 'Isi email akan tampil di sini...';
     }
+
+    // DRAG & DROP FILE UPLOAD
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropZone = document.getElementById('dropZone');
+        const input    = document.getElementById('inputAttachments');
+        const preview  = document.getElementById('filePreview');
+        const list     = document.getElementById('fileList');
+        const countEl  = document.getElementById('fileCount');
+        const sizeEl   = document.getElementById('totalSize');
+
+        if (!dropZone || !input) return;
+
+        // State — kumpulan file
+        let selectedFiles = [];
+
+        // KLIK DROPZONE → BUKA FILE PICKER
+        dropZone.addEventListener('click', () => input.click());
+
+        // DRAG EVENTS
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('border-gold', 'bg-gold/10');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('border-gold', 'bg-gold/10');
+            });
+        });
+
+        // HANDLE DROP
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        });
+
+        // HANDLE INPUT CHANGE
+        input.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        });
+
+        // HANDLE FILES
+        function handleFiles(files) {
+            const maxPerFile = 3 * 1024 * 1024;  
+            const maxTotal   = 10 * 1024 * 1024; 
+            const maxCount   = 20;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // Cek max per file
+                if (file.size > maxPerFile) {
+                    alert(`File "${file.name}" melebihi 3 MB!`);
+                    continue;
+                }
+
+                // Cek max jumlah file
+                if (selectedFiles.length >= maxCount) {
+                    alert(`Maksimal ${maxCount} file!`);
+                    break;
+                }
+
+                // Cek duplikat (nama + size)
+                const isDuplicate = selectedFiles.some(f =>
+                    f.name === file.name && f.size === file.size
+                );
+                if (isDuplicate) {
+                    alert(`File "${file.name}" sudah dipilih.`);
+                    continue;
+                }
+
+                selectedFiles.push(file);
+            }
+
+            // Cek total size
+            const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+            if (totalSize > maxTotal) {
+                alert('Total lampiran melebihi 10 MB!');
+                selectedFiles.pop();
+            }
+
+            renderPreview();
+        }
+
+        // RENDER PREVIEW
+        function renderPreview() {
+            if (selectedFiles.length === 0) {
+                preview.classList.add('hidden');
+                return;
+            }
+
+            preview.classList.remove('hidden');
+            list.innerHTML = '';
+            countEl.textContent = selectedFiles.length;
+
+            let totalSize = 0;
+
+            selectedFiles.forEach((file, index) => {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                totalSize += file.size;
+
+                const ext = file.name.split('.').pop().toLowerCase();
+                const icon = getFileIcon(ext);
+
+                list.innerHTML += `
+                    <div class="flex items-center justify-between text-[12px] bg-cream/60 rounded-md px-3 py-2">
+                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                            <span class="flex-shrink-0">${icon}</span>
+                            <span class="text-ink truncate">${file.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                            <span class="text-muted text-[11px]">${sizeMB} MB</span>
+                            <button type="button"
+                                    onclick="hapusFile(${index})"
+                                    class="text-red-500 hover:text-red-700 w-5 h-5 flex items-center justify-center rounded hover:bg-red-50">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            sizeEl.textContent = (totalSize / 1024 / 1024).toFixed(2) + ' MB';
+
+            updateInputFiles();
+        }
+
+        // UPDATE INPUT FILES
+        function updateInputFiles() {
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+        }
+
+        // Hapus file dari list 
+        window.hapusFile = function (index) {
+            selectedFiles.splice(index, 1);
+            renderPreview();
+        };
+
+        window.hapusSemuaFile = function () {
+            if (!confirm('Hapus semua lampiran?')) return;
+            selectedFiles = [];
+            renderPreview();
+        };
+
+        // Icon per ekstensi
+        function getFileIcon(ext) {
+            if (ext === 'pdf') return '📄';
+            if (['doc', 'docx'].includes(ext)) return '📝';
+            if (['xls', 'xlsx'].includes(ext)) return '📊';
+            if (['ppt', 'pptx'].includes(ext)) return '📽️';
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return '🖼️';
+            if (ext === 'zip') return '🗜️';
+            return '📎';
+        }
+        
+        // HAPUS FILE EXISTING
+        window.hapusExistingFile = function (index) {
+            const item = document.querySelector(`.existing-file-item[data-index="${index}"]`);
+            if (item) {
+                item.remove();
+
+                // Update counter
+                const remaining = document.querySelectorAll('.existing-file-item').length;
+                const countEl = document.getElementById('existingCount');
+                if (countEl) countEl.textContent = remaining;
+
+                // Kalau habis, sembunyikan container
+                if (remaining === 0) {
+                    const container = document.getElementById('existingFiles');
+                    if (container) container.remove();
+                }
+            }
+        };
+
+window.hapusSemuaExisting = function () {
+    if (!confirm('Hapus semua file terlampir?')) return;
+
+    document.querySelectorAll('.existing-file-item').forEach(item => item.remove());
+
+    const container = document.getElementById('existingFiles');
+    if (container) container.remove();
+};
+    });
 
     // PENERIMA MODE
     function switchMode(mode) {

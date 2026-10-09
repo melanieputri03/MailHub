@@ -54,9 +54,9 @@
 
     @stack('styles')
 </head>
-<body class="bg-cream text-ink antialiased">
+    <body class="bg-cream text-ink antialiased">
 
-<div class="flex min-h-screen">
+    <div class="flex min-h-screen">
 
     {{-- SIDEBAR --}}
     @include('sidebar')
@@ -65,10 +65,10 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-screen">
 
         {{-- HEADER --}}
-        <header class="bg-white border-b border-outline px-6 py-3 flex items-center justify-between flex-shrink-0">
+        <header class="bg-white border-b border-outline px-9 py-6 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo-batamindo.jpg') }}"
-                     alt="Batamindo" class="h-6 w-auto">
+                     alt="Batamindo" class="h-8 w-auto">
                 <h1 class="text-ink font-semibold text-[15px] tracking-tight">MailHub Control Room</h1>
             </div>
         </header>
