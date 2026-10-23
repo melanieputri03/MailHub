@@ -45,7 +45,7 @@
                 {{-- HEADER --}}
                 <div class="email-layout">
                     @if(isset($tpl) && $tpl && $tpl->header_html)
-                        {!! $tpl->header_html !!}
+                        {!! \App\Support\EmailHtml::inlineCss($tpl->header_html, $tpl->header_css) !!}
                     @else
                         @include('partials.email-header')
                     @endif
@@ -64,7 +64,7 @@
                 {{-- FOOTER --}}
                 <div class="email-layout">
                     @if(isset($tpl) && $tpl && $tpl->footer_html)
-                        {!! $tpl->footer_html !!}
+                        {!! \App\Support\EmailHtml::inlineCss($tpl->footer_html, $tpl->footer_css) !!}
                     @else
                         @include('partials.email-footer')
                     @endif
