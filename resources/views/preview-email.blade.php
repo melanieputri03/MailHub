@@ -3,7 +3,7 @@
 
 @section('content')
 
-{{-- HEADER --}}
+{{-- HEADER HALAMAN --}}
 <div class="flex items-start justify-between gap-4 mb-5">
     <div class="flex-1 min-w-0">
         <h1 class="text-[18px] font-bold text-ink flex items-center gap-2">
@@ -38,22 +38,39 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[calc(100vh-140px)]">
 
-    {{-- KIRI: PREVIEW EMAIL (2/3) --}}
-    <div class="lg:col-span-2">
-        <div class="bg-white border border-outline rounded-lg overflow-hidden shadow-sm h-full flex flex-col">
+        {{-- KIRI: PREVIEW EMAIL (2/3) --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-outline rounded-lg overflow-hidden shadow-sm h-full flex flex-col">
 
-            @include('partials.email-header')
-
-            <div class="px-8 py-8 flex-1">
-                <div class="text-center mb-6">
-                    <h2 class="text-[20px] font-bold text-maroon tracking-wide">{{ $data['nama'] }}</h2>
+                {{-- HEADER --}}
+                <div class="email-layout">
+                    @if(isset($tpl) && $tpl && $tpl->header_html)
+                        {!! $tpl->header_html !!}
+                    @else
+                        @include('partials.email-header')
+                    @endif
                 </div>
-                <div class="text-[13px] text-ink leading-relaxed">{!! $data['body'] !!}</div>
-            </div>
 
-            @include('partials.email-footer')
+                {{-- BODY EMAIL --}}
+                <div class="px-8 py-8 flex-1">
+                    <div class="text-center mb-6">
+                        <h2 class="text-[20px] font-bold text-maroon tracking-wide">{{ $data['nama'] }}</h2>
+                    </div>
+                    <div class="email-body text-[13px] text-ink">
+                        {!! $data['body'] !!}
+                    </div>
+                </div>
+
+                {{-- FOOTER --}}
+                <div class="email-layout">
+                    @if(isset($tpl) && $tpl && $tpl->footer_html)
+                        {!! $tpl->footer_html !!}
+                    @else
+                        @include('partials.email-footer')
+                    @endif
+                </div>
+            </div>
         </div>
-    </div>
 
     {{-- KANAN: INFO PENERIMA (1/3) --}}
     <div class="lg:col-span-1 flex flex-col h-full">
@@ -88,6 +105,7 @@
                                     'ppt', 'pptx' => '📽️',
                                     'jpg', 'jpeg', 'png', 'gif' => '🖼️',
                                     'zip' => '🗜️',
+                                    default => '📎',
                                 };
                                 $size = round($att['size'] / 1024 / 1024, 2);
                             @endphp
@@ -148,7 +166,7 @@
                         @foreach($penerima->take(50) as $p)
                             <div class="flex items-center gap-2 py-1">
                                 <div class="w-6 h-6 rounded-full bg-maroon/10 flex items-center justify-center text-[9px] font-bold text-maroon flex-shrink-0 uppercase">
-                                    {{ substr($p->nama, 0, 2) }}
+                                    {{ mb_substr($p->nama, 0, 2) }}
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="font-medium text-ink truncate">{{ $p->nama }}</div>
@@ -186,17 +204,17 @@
                 @csrf
                 <input type="hidden" name="nama"          value="{{ $data['nama'] }}">
                 <input type="hidden" name="subject"       value="{{ $data['subject'] }}">
-                <input type="hidden" name="body"          value="{{ $data['body'] }}">
+                <textarea name="body" class="hidden">{{ $data['body'] }}</textarea>
                 <input type="hidden" name="template_id"   value="{{ $data['template_id'] ?? '' }}">
                 <input type="hidden" name="penerima_mode" value="{{ $data['penerima_mode'] }}">
 
                 @if(!empty($data['attachments']))
-                        @foreach($data['attachments'] as $i => $att)
-                            <input type="hidden" name="attachments[{{ $i }}][filename]" value="{{ $att['filename'] }}">
-                            <input type="hidden" name="attachments[{{ $i }}][original]" value="{{ $att['original'] }}">
-                            <input type="hidden" name="attachments[{{ $i }}][size]"     value="{{ $att['size'] }}">
-                        @endforeach
-                    @endif
+                    @foreach($data['attachments'] as $i => $att)
+                        <input type="hidden" name="existing_attachments[{{ $i }}][filename]" value="{{ $att['filename'] }}">
+                        <input type="hidden" name="existing_attachments[{{ $i }}][original]" value="{{ $att['original'] }}">
+                        <input type="hidden" name="existing_attachments[{{ $i }}][size]"     value="{{ $att['size'] }}">
+                    @endforeach
+                @endif
 
                 @if(!empty($data['divisi_ids']))
                     @foreach($data['divisi_ids'] as $id)
@@ -248,42 +266,25 @@
     </div>
 </div>
 
-
 {{-- MODAL KONFIRMASI KIRIM --}}
 <div id="modalKonfirmasiKirim" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-md border border-outline">
-
-        {{-- BODY --}}
         <div class="px-6 py-6 flex flex-col items-center text-center">
-
-            {{-- Icon --}}
             <div class="w-16 h-16 bg-gold/15 rounded-full flex items-center justify-center mb-4">
                 <svg class="w-8 h-8 text-gold" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>
                 </svg>
             </div>
-
-            {{-- Judul --}}
             <h3 class="font-bold text-[17px] text-ink mb-2">Kirim Email?</h3>
-
-            {{-- Deskripsi --}}
-            <p class="text-[13px] text-muted leading-relaxed">
-                Email akan dikirim ke
-            </p>
-
-            {{-- Jumlah Penerima --}}
+            <p class="text-[13px] text-muted leading-relaxed">Email akan dikirim ke</p>
             <p class="text-[28px] font-bold text-gold mt-1 mb-2">
                 {{ $penerima->count() }} Penerima
             </p>
-
-            {{-- Info Detail --}}
             <div class="bg-cream/60 border border-outline rounded-md px-4 py-3 text-[12px] text-ink leading-relaxed mt-2 mb-1 w-full text-left">
                 <div><strong>Subject:</strong> {{ $data['subject'] }}</div>
                 <div class="mt-1 text-muted">Proses ini tidak dapat dibatalkan.</div>
             </div>
         </div>
-
-        {{-- FOOTER --}}
         <div class="px-6 py-4 border-t border-outline grid grid-cols-2 gap-3">
             <button type="button" onclick="tutupModalKonfirmasi()"
                     class="bg-white border border-outline text-[13px] text-ink px-5 py-3 rounded-md hover:bg-cream transition font-medium">
@@ -303,35 +304,42 @@
 
 @endsection
 
+@push('styles')
+<style>
+    .email-layout { width: 100%; }
+    .email-layout > table { width: 100% !important; max-width: none !important; }
+    .email-layout table[width="600"] { width: 100% !important; max-width: none !important; }
+    .email-layout [style*="F5ECEA" i] { background: transparent !important; }
+    .email-layout td[align="center"] { padding: 0 !important; }
+    .email-layout img { max-width: 100%; }
+    .email-body p { margin: 0 0 10px; line-height: 1.6; }
+
+    /* Body Email */
+    .email-body p { margin: 0 0 10px 0 !important; line-height: 1.6 !important; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
-    // MODAL KONFIRMASI KIRIM
     function bukaModalKonfirmasi() {
-        const modal = document.getElementById('modalKonfirmasiKirim');
-        modal.classList.remove('hidden');
+        document.getElementById('modalKonfirmasiKirim').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
 
     function tutupModalKonfirmasi() {
-        const modal = document.getElementById('modalKonfirmasiKirim');
-        modal.classList.add('hidden');
+        document.getElementById('modalKonfirmasiKirim').classList.add('hidden');
         document.body.style.overflow = '';
     }
 
     function submitFormKirim() {
-        // Tutup modal dulu
         tutupModalKonfirmasi();
-
-        // Submit form
         document.getElementById('formKirim').submit();
     }
 
-    // Close on backdrop click
     document.getElementById('modalKonfirmasiKirim')?.addEventListener('click', function (e) {
         if (e.target === this) tutupModalKonfirmasi();
     });
 
-    // Close on ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') tutupModalKonfirmasi();
     });

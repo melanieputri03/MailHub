@@ -28,3 +28,7 @@ Thumbs.db
 # Ignore uploaded attachments (file PDF, gambar, dll dari user)
 /public/uploads/email-attachments/*
 !/public/uploads/email-attachments/.gitkeep
+
+# Ignore uploaded email images
+/public/uploads/email-images/*
+!/public/uploads/email-images/.gitkeep

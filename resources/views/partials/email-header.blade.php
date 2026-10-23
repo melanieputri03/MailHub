@@ -1,11 +1,11 @@
-{{-- ============ HEADER EMAIL BIC ============ --}}
+{{-- HEADER EMAIL BIC --}}
 <div class="bg-white px-6 py-5 border-b-2 border-maroon">
     <div class="flex items-center gap-4">
 
         {{-- LOGO LANGSUNG (TANPA BACKGROUND) --}}
         <img src="{{ asset('images/logo-batamindo.jpg') }}"
              alt="Batamindo"
-             class="h-14 w-auto object-contain flex-shrink-0">
+             style="height:48px; width:auto; max-width:none; display:block;">     
 
         {{-- Nama Perusahaan --}}
         <div class="flex-1 min-w-0">

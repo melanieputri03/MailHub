@@ -116,7 +116,6 @@
 
 </div>
 
-
 {{-- MODAL BUAT/EDIT GRUP --}}
 <div id="modalGrup" class="hidden fixed inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-5xl max-h-[93vh] overflow-hidden flex flex-col border border-outline">
@@ -324,7 +323,7 @@
     const baseUrlGrup = "{{ url('/grup') }}";
     let selectedPenerima = new Set();
 
-    // ==================== MODAL GRUP ====================
+    // MODAL GRUP
     function bukaModalGrup(data) {
         const modal = document.getElementById('modalGrup');
         const form  = document.getElementById('formGrup');
@@ -372,7 +371,7 @@
         updatePanelTerpilih();
     }
 
-    // ==================== CHECKBOX ANGGOTA ====================
+    // CHECKBOX ANGGOTA
     document.querySelectorAll('.anggota-checkbox').forEach(cb => {
         cb.addEventListener('change', function () {
             const id = parseInt(this.value);
@@ -392,7 +391,7 @@
         });
     }
 
-    // ==================== FILTER ANGGOTA ====================
+    // FILTER ANGGOTA
     function filterAnggota() {
         const keyword = document.getElementById('searchAnggota').value.toLowerCase().trim();
         document.querySelectorAll('.anggota-item').forEach(item => {
@@ -404,7 +403,7 @@
         });
     }
 
-    // ==================== UPDATE PANEL TERPILIH ====================
+    // UPDATE PANEL TERPILIH
     function updatePanelTerpilih() {
         const listEl = document.getElementById('listTerpilih');
         const countEl = document.getElementById('jumlahTerpilih');
@@ -456,7 +455,7 @@
         updatePanelTerpilih();
     }
 
-    // ==================== MODAL HAPUS GRUP ====================
+    // MODAL HAPUS GRUP
     function bukaModalHapusGrup(id, nama) {
         const modal = document.getElementById('modalHapusGrup');
         const form  = document.getElementById('formHapusGrup');
@@ -471,7 +470,7 @@
         document.body.style.overflow = '';
     }
 
-    // ==================== CLOSE MODAL ====================
+    // CLOSE MODAL
     ['modalGrup', 'modalHapusGrup'].forEach(id => {
         document.getElementById(id)?.addEventListener('click', function (e) {
             if (e.target === this) {

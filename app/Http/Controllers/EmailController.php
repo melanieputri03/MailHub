@@ -24,6 +24,17 @@ class EmailController extends Controller
 
         $draft = session('email_draft', null);
 
+        //  Decode body di draft kalau ternyata JSON
+        if ($draft && isset($draft['body']) && is_string($draft['body'])) {
+            $trimmed = trim($draft['body']);
+            if (str_starts_with($trimmed, '{"')) {
+                $decoded = json_decode($trimmed, true);
+                if (is_array($decoded) && isset($decoded['body'])) {
+                    $draft['body'] = $decoded['body'];
+                }
+            }
+        }
+
         $selectedTemplate = null;
         if ($request->filled('template')) {
             $selectedTemplate = TemplateEmail::find($request->template);
@@ -59,9 +70,19 @@ class EmailController extends Controller
             'existing_attachments.*.size'       => 'nullable|integer',
         ]);
 
+        //  Decode body kalau ternyata JSON string
+        if (isset($data['body']) && is_string($data['body'])) {
+            $trimmed = trim($data['body']);
+            if (str_starts_with($trimmed, '{"')) {
+                $decoded = json_decode($trimmed, true);
+                if (is_array($decoded) && isset($decoded['body'])) {
+                    $data['body'] = $decoded['body'];
+                }
+            }
+        }
+
         $attachmentMap = [];
 
-        // 1. Ambil dari session dulu (file yang tersimpan sebelumnya)
         $sessionDraft = session('email_draft', []);
         if (!empty($sessionDraft['attachments'])) {
             foreach ($sessionDraft['attachments'] as $att) {
@@ -121,7 +142,6 @@ class EmailController extends Controller
         // Reset index jadi array numerik
         $attachmentPaths = array_values($attachmentMap);
 
-        // Cek total size max 10 MB
         $totalSize = array_sum(array_column($attachmentPaths, 'size'));
         if ($totalSize > 10 * 1024 * 1024) {
             $this->cleanupNewUploads($request, $sessionDraft);
@@ -129,11 +149,9 @@ class EmailController extends Controller
             return back()->with('error', 'Total lampiran melebihi 10 MB. Silakan kompres file dulu.');
         }
 
-        // Simpan ke session
         $data['attachments'] = $attachmentPaths;
         session(['email_draft' => $data]);
 
-        // Resolve penerima
         $penerima = $this->resolvePenerima(
             $data['penerima_mode'],
             $data['divisi_ids'] ?? [],
@@ -148,7 +166,10 @@ class EmailController extends Controller
         $grupDipilih = !empty($data['grup_ids'])
             ? Grup::whereIn('grup_id', $data['grup_ids'])->pluck('nama')->toArray()
             : [];
-        return view('preview-email', compact('data', 'penerima', 'divisiDipilih', 'grupDipilih'));
+
+        $tpl = !empty($data['template_id']) ? TemplateEmail::find($data['template_id']) : null;
+        return view('preview-email', compact('data', 'penerima', 'divisiDipilih', 'grupDipilih', 'tpl'));
+
     }
 
     // Kirim email via SMTP (dengan attachment)
@@ -165,6 +186,14 @@ class EmailController extends Controller
             'penerima_ids'  => 'nullable|array',
             'attachments'   => 'nullable|array',
         ]);
+
+        $bodyHtml = $data['body'];
+        if (is_string($bodyHtml) && str_starts_with(trim($bodyHtml), '{"')) {
+            $decoded = json_decode($bodyHtml, true);
+            if (is_array($decoded) && isset($decoded['body'])) {
+                $bodyHtml = $decoded['body'];
+            }
+        }
 
         // AMBIL ATTACHMENT
         $sessionAttachments = session('email_draft.attachments', []);
@@ -210,12 +239,12 @@ class EmailController extends Controller
             }
         }
 
-        // 1. Simpan email ke DB
+        // 1. Simpan email ke DB (pakai bodyHtml yang udah di-decode)
         $emailRecord = Email::create([
             'template_id' => $data['template_id'] ?: null,
             'nama'        => $data['nama'],
             'subject'     => $data['subject'],
-            'body'        => $data['body'],
+            'body'        => $bodyHtml,
             'status'      => 'sent',
             'sent_at'     => now(),
         ]);
@@ -232,7 +261,8 @@ class EmailController extends Controller
                 $mailable = new BroadcastMail(
                     $data['nama'],
                     $data['subject'],
-                    $data['body']
+                    $bodyHtml,
+                    $data['template_id'] ?? null
                 );
 
                 // Lampirkan file
@@ -274,14 +304,37 @@ class EmailController extends Controller
             $emailRecord->update(['status' => 'failed']);
         }
 
-        // Bersihkan session draft
         session()->forget('email_draft');
 
         return redirect()->route('riwayat')
             ->with('success', "Pengiriman selesai: {$totalBerhasil} berhasil, {$totalGagal} gagal.");
     }
 
-    // Helper: resolve penerima sesuai mode
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|max:2048|mimes:jpg,jpeg,png,gif,webp',
+        ]);
+
+        $file = $request->file('file');
+
+        $originalName = $file->getClientOriginalName();
+        $safeName     = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+        $filename     = time() . '_' . uniqid() . '_' . $safeName;
+
+        $uploadPath = public_path('uploads/email-images');
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        $size = $file->getSize();
+        $file->move($uploadPath, $filename);
+
+        return response()->json([
+            'location' => url('uploads/email-images/' . $filename),
+        ]);
+    }
+
     private function resolvePenerima($mode, $divisiIds, $grupIds, $penerimaIds)
     {
         $query = Penerima::aktif()->with('divisi');
@@ -297,14 +350,12 @@ class EmailController extends Controller
         return $query->distinct()->orderBy('nama')->get();
     }
 
-    // Helper: hapus file baru yang barusan diupload kalau validasi gagal.
     private function cleanupNewUploads(Request $request, array $sessionDraft = [])
     {
         if (!$request->hasFile('attachments')) {
             return;
         }
 
-        // Kumpulkan filename lama dari session, biar gak kehapus
         $oldFilenames = collect($sessionDraft['attachments'] ?? [])
             ->pluck('filename')
             ->filter()
@@ -320,15 +371,12 @@ class EmailController extends Controller
             $originalName = $file->getClientOriginalName();
             $safeName     = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
 
-            // Cari file yang barusan diupload (pola: time_uniqid_safeName)
             $pattern = $uploadPath . '/*_' . $safeName;
             foreach (glob($pattern) as $existingFile) {
                 $basename = basename($existingFile);
-                // Skip kalau ini file lama dari session
                 if (in_array($basename, $oldFilenames, true)) {
                     continue;
                 }
-                // Hapus kalau umurnya < 60 detik (baru aja diupload)
                 if (filemtime($existingFile) > time() - 60) {
                     @unlink($existingFile);
                 }

@@ -86,6 +86,7 @@
 {{-- STEP 2: PILIH TEMPLATE --}}
 <div id="step-2" class="hidden">
 
+    {{-- HEADER STEP 2 --}}
     <div class="flex items-center justify-between mb-5">
         <div>
             <h2 class="text-[15px] font-bold text-ink">Pilih Template Email</h2>
@@ -101,58 +102,104 @@
     </div>
 
     @if($template->count() > 0)
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            @foreach($template as $tpl)
-                <div class="bg-white border border-outline rounded-lg overflow-hidden hover:shadow-lg hover:border-gold transition flex flex-col">
 
-                    <div class="bg-cream/40 p-3">
-                        <div class="bg-white rounded-sm border border-outline/60 overflow-hidden h-[280px] flex flex-col shadow-sm">
-                            <div class="bg-white px-3 py-2 border-b-2 border-maroon">
-                                <div class="flex items-center gap-1.5">
-                                    <img src="{{ asset('images/logo-batamindo.jpg') }}"
-                                         alt="BIC"
-                                         class="w-4 h-4 object-contain flex-shrink-0">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-maroon font-bold text-[5px] leading-tight truncate">BATAMINDO INDUSTRIAL PARK</div>
-                                        <div class="text-muted text-[4px] leading-tight truncate">PT BATAMINDO INVESTMENT</div>
+        {{-- SEARCH BAR --}}
+        <div class="mb-4 flex items-center gap-3">
+            <div class="relative flex-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                    </svg>
+                </span>
+                <input type="text" id="searchTemplate" oninput="filterTemplate()"
+                       placeholder="Cari template berdasarkan nama atau deskripsi..."
+                       class="w-full border border-outline rounded-md pl-10 pr-3 py-2.5 text-[13px] text-ink
+                              focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition bg-white">
+            </div>
+            <div class="text-[12px] text-muted whitespace-nowrap">
+                Total: <span class="font-semibold text-ink" id="totalTemplate">{{ $template->count() }}</span> template
+            </div>
+        </div>
+
+        {{-- SCROLL BOX + GRID --}}
+        <div class="max-h-[600px] overflow-y-auto pr-2 -mr-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                @foreach($template as $tpl)
+                    <div class="template-card bg-white border border-outline rounded-lg overflow-hidden hover:shadow-lg hover:border-gold transition flex flex-col"
+                         data-nama="{{ strtolower($tpl->nama) }}"
+                         data-deskripsi="{{ strtolower($tpl->deskripsi ?? '') }}"
+                         data-subject="{{ strtolower($tpl->subject ?? '') }}">
+
+                        {{-- PREVIEW MINI --}}
+                        <div class="bg-cream/40 p-3">
+                            <div class="bg-white rounded-sm border border-outline/60 overflow-hidden h-[280px] flex flex-col shadow-sm">
+                                <div class="bg-white px-3 py-2 border-b-2 border-maroon">
+                                    <div class="flex items-center gap-1.5">
+                                        <img src="{{ asset('images/logo-batamindo.jpg') }}"
+                                             alt="BIC"
+                                             class="w-4 h-4 object-contain flex-shrink-0">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-maroon font-bold text-[5px] leading-tight truncate">BATAMINDO INDUSTRIAL PARK</div>
+                                            <div class="text-muted text-[4px] leading-tight truncate">PT BATAMINDO INVESTMENT</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 p-3 overflow-hidden">
+                                    <div class="text-center mb-2">
+                                        <div class="text-[8px] font-bold text-maroon uppercase tracking-wider">{{ $tpl->nama }}</div>
+                                    </div>
+                                    <div class="text-[6px] text-gray-700 leading-relaxed">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($tpl->body ?? ''), 180) }}
+                                    </div>
+                                </div>
+
+                                <div class="bg-[#1a1a1a] px-2 py-2">
+                                    <div class="text-center text-[4px] text-white font-bold mb-0.5">PT BATAMINDO INVESTMENT</div>
+                                    <div class="text-center text-[3.5px] text-gray-400 leading-tight">
+                                        Wisma Batamindo Lt. 3<br>
+                                        Telp: (0778) 431 888
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="flex-1 p-3 overflow-hidden">
-                                <div class="text-center mb-2">
-                                    <div class="text-[8px] font-bold text-maroon uppercase tracking-wider">{{ $tpl->nama }}</div>
-                                </div>
-                                <div class="text-[6px] text-gray-700 leading-relaxed">
-                                    {{ \Illuminate\Support\Str::limit(strip_tags($tpl->body ?? ''), 180) }}
-                                </div>
-                            </div>
+                        {{-- INFO --}}
+                        <div class="px-4 pt-3 pb-2 flex-1">
+                            <h3 class="font-semibold text-[13px] text-ink mb-1">{{ $tpl->nama }}</h3>
+                            <p class="text-[11px] text-muted leading-snug">{{ $tpl->deskripsi }}</p>
+                        </div>
 
-                            <div class="bg-[#1a1a1a] px-2 py-2">
-                                <div class="text-center text-[4px] text-white font-bold mb-0.5">PT BATAMINDO INVESTMENT</div>
-                                <div class="text-center text-[3.5px] text-gray-400 leading-tight">
-                                    Wisma Batamindo Lt. 3<br>
-                                    Telp: (0778) 431 888
-                                </div>
-                            </div>
+                        {{-- TOMBOL --}}
+                        <div class="px-4 pb-4">
+                            <button type="button" onclick='pilihTemplate(@json($tpl))'
+                                    class="block w-full text-center bg-gold hover:bg-goldD text-white text-[13px] font-semibold
+                                           px-4 py-2.5 rounded-md transition shadow-sm">
+                                Pilih Template
+                            </button>
                         </div>
                     </div>
+                @endforeach
 
-                    <div class="px-4 pt-3 pb-2 flex-1">
-                        <h3 class="font-semibold text-[13px] text-ink mb-1">{{ $tpl->nama }}</h3>
-                        <p class="text-[11px] text-muted leading-snug">{{ $tpl->deskripsi }}</p>
-                    </div>
+            </div>
 
-                    <div class="px-4 pb-4">
-                        <button type="button" onclick='pilihTemplate(@json($tpl))'
-                                class="block w-full text-center bg-gold hover:bg-goldD text-white text-[13px] font-semibold
-                                       px-4 py-2.5 rounded-md transition shadow-sm">
-                            Pilih Template
-                        </button>
-                    </div>
+            {{-- EMPTY STATE SAAT SEARCH GAK KETEMU --}}
+            <div id="templateEmpty" class="hidden bg-white border border-outline rounded-lg p-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                    <svg class="w-10 h-10 text-muted/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                    </svg>
+                    <div class="text-[13px] text-muted">Template gak ditemukan. Coba keyword lain.</div>
+                    <button type="button" onclick="clearSearchTemplate()"
+                            class="text-[12px] text-gold font-semibold hover:underline">
+                        Reset Pencarian
+                    </button>
                 </div>
-            @endforeach
+            </div>
+
         </div>
+
     @else
         <div class="bg-white border border-outline rounded-lg p-12 text-center">
             <div class="text-[13px] text-muted">Belum ada template. Silakan seed template dulu.</div>
@@ -251,7 +298,7 @@
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip"
                         class="hidden">
 
-                {{-- ⚡ FILE YANG SUDAH DIPILIH (dari session/draft) --}}
+                {{-- FILE YANG SUDAH DIPILIH (dari session/draft) --}}
                 @if(isset($draft['attachments']) && count($draft['attachments']) > 0)
                     <div id="existingFiles" class="mt-4">
                         <div class="flex items-center justify-between mb-2">
@@ -292,7 +339,7 @@
                             ✕
                         </button>
                     </div>
-                    {{-- ⚡ Hidden input supaya file ini tetap ke-submit ke server --}}
+                    {{-- Hidden input supaya file ini tetap ke-submit ke server --}}
                         <input type="hidden" name="existing_attachments[{{ $i }}][filename]" value="{{ $att['filename'] }}">
                         <input type="hidden" name="existing_attachments[{{ $i }}][original]" value="{{ $att['original'] }}">
                         <input type="hidden" name="existing_attachments[{{ $i }}][size]"     value="{{ $att['size'] }}">
@@ -514,7 +561,7 @@
                 </div>
             </div>
 
-            {{-- ============ KANAN: LIVE PREVIEW (2/5) ============ --}}
+            {{-- KANAN: LIVE PREVIEW (2/5) --}}
             <div class="lg:col-span-2">
                 <div class="sticky top-6">
 
@@ -524,20 +571,23 @@
                     </div>
 
                     <div class="bg-white border border-outline rounded-lg overflow-hidden shadow-sm">
-                        @include('partials.email-header')
+                        
+                        {{-- HEADER (ID previewHeader) --}}
+                        <div id="previewHeader" class="email-layout">@include('partials.email-header')</div>
 
+                        {{-- BODY EMAIL --}}
                         <div class="px-6 py-6 min-h-[280px]">
                             <div class="text-center mb-4">
-                                <h2 class="text-[15px] font-bold text-maroon tracking-wide" id="previewNama">
-                                    EMAIL BARU
-                                </h2>
+                                <h2 class="text-[15px] font-bold text-maroon tracking-wide" id="previewNama">EMAIL BARU</h2>
                             </div>
-                            <div id="previewBody" class="text-[12px] text-ink leading-relaxed">
+                            <div id="previewBody" class="email-body text-[12px] text-ink">
                                 Isi email akan tampil di sini...
                             </div>
                         </div>
 
-                        @include('partials.email-footer')
+                        {{-- FOOTER (ID previewFooter) --}}
+                        <div id="previewFooter" class="email-layout">@include('partials.email-footer')</div>
+
                     </div>
 
                     <div class="mt-3 bg-cream/60 border border-outline rounded-md p-3">
@@ -546,14 +596,63 @@
                     </div>
                 </div>
             </div>
-        </div>
+
+            {{-- TEMPLATE DEFAULT (WAJIB ADA) --}}
+            <template id="defaultHeaderTpl">@include('partials.email-header')</template>
+            <template id="defaultFooterTpl">@include('partials.email-footer')</template>
     </form>
 </div>
 
 @endsection
 
+@push('styles')
+<style>
+    .email-layout { width: 100%; }
+    .email-layout > table { width: 100% !important; max-width: none !important; }
+    .email-layout table[width="600"] { width: 100% !important; max-width: none !important; }
+    .email-layout [style*="F5ECEA" i] { background: transparent !important; }
+    .email-layout td[align="center"] { padding: 0 !important; }
+    .email-layout img { max-width: 100%; }
+    .email-body p { margin: 0 0 10px; line-height: 1.6; }
+
+    /* Body Email */
+    .email-body p { margin: 0 0 10px 0 !important; line-height: 1.6 !important; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
+    const TEMPLATES = @json($template->keyBy('template_email_id'));
+
+        function setPreviewLayout(tpl) {
+        const defH = document.getElementById('defaultHeaderTpl')?.innerHTML || '';
+        const defF = document.getElementById('defaultFooterTpl')?.innerHTML || '';
+
+        const headerHtml = (tpl && tpl.header_html && tpl.header_html.trim()) ? tpl.header_html : defH;
+        const footerHtml = (tpl && tpl.footer_html && tpl.footer_html.trim()) ? tpl.footer_html : defF;
+
+        // Mengecek apakah elemennya ada, baru diisi
+        const previewHeader = document.getElementById('previewHeader');
+        const previewFooter = document.getElementById('previewFooter');
+
+        if (previewHeader) previewHeader.innerHTML = headerHtml;
+        if (previewFooter) previewFooter.innerHTML = footerHtml;
+
+        // Pasang CSS
+        let styleEl = document.getElementById('dynamic-template-css');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'dynamic-template-css';
+            document.head.appendChild(styleEl);
+        }
+
+        if (tpl && tpl.header_css) {
+            let css = (tpl.header_css + '\n' + (tpl.footer_css || '')).replace(/}/g, ' !important;}');
+            styleEl.innerHTML = css;
+        } else {
+            styleEl.innerHTML = '';
+        }
+    }
     let currentStep = 1;
 
     // STEP NAVIGATION
@@ -622,7 +721,7 @@
         document.getElementById('inputSubject').value = tpl.subject || '';
 
         // Set body ke TinyMCE (content)
-        const bodyContent = (tpl.body || '').replace(/\n/g, '<br>');
+        const bodyContent = (tpl.body || '');
         if (typeof tinymce !== 'undefined' && tinymce.get('inputBody')) {
             tinymce.get('inputBody').setContent(bodyContent);
         }
@@ -631,16 +730,32 @@
         document.getElementById('step3-title').textContent = tpl.template_email_id
             ? 'Edit Email — ' + tpl.nama
             : 'Buat Email dari Awal';
-
+        
+        setPreviewLayout(tpl)
         updatePreview();
     }
 
-    // LIVE PREVIEW
+    // FUNGSI PEMBERSIH 
+    function cleanHtml(html) {
+        if (!html) return '';
+        const doc  = new DOMParser().parseFromString(`<div id="r">${html}</div>`, 'text/html');
+        const root = doc.getElementById('r');
+
+        root.querySelectorAll('ul > br, ol > br').forEach(br => br.remove());
+
+        root.querySelectorAll('li > p').forEach(p => {
+            const li = p.parentNode;
+            while (p.firstChild) li.insertBefore(p.firstChild, p);
+            p.remove();
+        });
+
+        return root.innerHTML;
+    }
+
     function updatePreview() {
         const nama    = document.getElementById('inputNama').value;
         const subject = document.getElementById('inputSubject').value;
 
-        // Ambil body dari TinyMCE
         let body = '';
         if (typeof tinymce !== 'undefined' && tinymce.get('inputBody')) {
             body = tinymce.get('inputBody').getContent();
@@ -648,7 +763,8 @@
 
         document.getElementById('previewNama').textContent = nama.trim() || 'EMAIL BARU';
         document.getElementById('previewSubject').textContent = subject || '(Belum diisi)';
-        document.getElementById('previewBody').innerHTML = body || 'Isi email akan tampil di sini...';
+
+        document.getElementById('previewBody').innerHTML = body ? cleanHtml(body) : 'Isi email akan tampil di sini...';
     }
 
     // DRAG & DROP FILE UPLOAD
@@ -662,10 +778,8 @@
 
         if (!dropZone || !input) return;
 
-        // State — kumpulan file
         let selectedFiles = [];
 
-        // KLIK DROPZONE → BUKA FILE PICKER
         dropZone.addEventListener('click', () => input.click());
 
         // DRAG EVENTS
@@ -828,7 +942,6 @@
                 const countEl = document.getElementById('existingCount');
                 if (countEl) countEl.textContent = remaining;
 
-                // Kalau habis, sembunyikan container
                 if (remaining === 0) {
                     const container = document.getElementById('existingFiles');
                     if (container) container.remove();
@@ -918,25 +1031,99 @@ window.hapusSemuaExisting = function () {
 
     if (typeof tinymce !== 'undefined') {
         tinymce.init({
-            selector: '#inputBody',
-            height: 380,
-            menubar: false,
-            branding: false,
-            plugins: 'lists link',
-            toolbar: 'undo redo | bold italic underline | bullist numlist | link | removeformat',
-            toolbar_mode: 'wrap',
-            placeholder: 'Tulis isi email di sini...',
-            content_style: 'body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.75; color: #202124; padding: 12px 16px; }',
-            setup: function (editor) {
-                editor.on('change keyup', function () {
-                    updatePreview();
-                    editor.save();
-                });
-            },
-            init_instance_callback: function (editor) {
-                loadDataToForm();
-            }
-        });
+        selector: '#inputBody',
+        height: 380,
+        menubar: false,
+        branding: false,
+
+        plugins: 'lists link image code',
+        toolbar: 'undo redo | fontfamily fontsize | bold italic underline | bullist numlist | link image | removeformat',
+        toolbar_mode: 'wrap',
+
+        relative_urls: false,
+        remove_script_host: false,
+        document_base_url: '{{ url("/") }}/',
+
+        convert_urls: false,
+
+        placeholder: 'Tulis isi email di sini...',
+        
+        image_title: true,
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        images_upload_url: '{{ route("email.uploadImage") }}',
+        images_upload_credentials: true,                               
+
+        images_upload_handler: function (blobInfo, progress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '{{ route("email.uploadImage") }}');
+
+                xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+
+                xhr.upload.onprogress = function (e) {
+                    progress(e.loaded / e.total * 100);
+                };
+
+                xhr.onload = function () {
+                    if (xhr.status === 403) {
+                        reject({ message: 'Forbidden', remove: true });
+                        return;
+                    }
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject('HTTP Error: ' + xhr.status);
+                        return;
+                    }
+
+                    const json = JSON.parse(xhr.responseText);
+                    if (!json || typeof json.location != 'string') {
+                        reject('Invalid JSON: ' + xhr.responseText);
+                        return;
+                    }
+
+                    resolve(json.location);
+                };
+
+                xhr.onerror = function () {
+                    reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+                };
+
+                const formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                xhr.send(formData);
+            });
+        },
+
+        content_style: 'body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.75; color: #202124; padding: 12px 16px; } img { max-width: 100%; height: auto; }',
+        
+        content_style: `
+           body { font-family: Inter, sans-serif; font-size: 13px; line-height: 1.6; color: #202124; padding: 12px 16px; } 
+            p { margin: 0 0 12px 0 !important; } /* Paksa jarak paragraf */
+            ul, ol { margin-top: 4px !important; margin-bottom: 12px !important; padding-left: 20px !important; }
+            li { margin-bottom: 4px !important; }
+        `,
+
+            init_instance_callback: function () {
+            setTimeout(() => { loadDataToForm(); }, 800); 
+        },
+        
+        setup: function (editor) {
+            editor.on('change keyup', function () {
+                updatePreview();
+                
+                let htmlContent = editor.getContent();
+
+                htmlContent = htmlContent.replace(
+                    /<img([^>]+)src=["']data:image\/[^;]+;base64,([^"']+)["']([^>]*)>/gi,
+                    function (match, before, base64, after) {
+                        return match;
+                    }
+                );
+                
+                document.getElementById('inputBody').value = htmlContent;
+            });
+        },
+    });
     } else {
         console.error('TinyMCE tidak ke-load. Cek script di layout.blade.php');
         loadDataToForm();
@@ -981,6 +1168,11 @@ window.hapusSemuaExisting = function () {
                 @endforeach
             @endif
 
+             const draftTemplateId = '{{ $draft["template_id"] ?? "" }}';
+            if (draftTemplateId) {
+                setPreviewLayout(TEMPLATES[draftTemplateId] || null);
+            }
+
             document.getElementById('step3-title').textContent = 'Edit Email';
             showStep(3);
             updatePreview();
@@ -1000,6 +1192,49 @@ window.hapusSemuaExisting = function () {
             showStep(1);
             hitungTotal();
         @endif
+    }
+
+    // FILTER TEMPLATE BERDASARKAN SEARCH
+    function filterTemplate() {
+        const keyword = document.getElementById('searchTemplate').value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.template-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const nama      = card.dataset.nama || '';
+            const deskripsi = card.dataset.deskripsi || '';
+            const subject   = card.dataset.subject || '';
+
+            const cocok = keyword === ''
+                || nama.includes(keyword)
+                || deskripsi.includes(keyword)
+                || subject.includes(keyword);
+
+            card.classList.toggle('hidden', !cocok);
+            if (cocok) visibleCount++;
+        });
+
+        // Show/hide empty state
+        const emptyMsg = document.getElementById('templateEmpty');
+        if (emptyMsg) {
+            emptyMsg.classList.toggle('hidden', visibleCount > 0);
+        }
+
+        // Update total
+        const totalEl = document.getElementById('totalTemplate');
+        if (totalEl) {
+            totalEl.textContent = visibleCount;
+        }
+    }
+
+    // RESET SEARCH
+    function clearSearchTemplate() {
+        const input = document.getElementById('searchTemplate');
+        if (input) {
+            input.value = '';
+            filterTemplate();
+            input.focus();
+        }
     }
 </script>
 @endpush

@@ -37,6 +37,12 @@
                     'icon'    => 'mail-dot',
                 ],
                 [
+                    'route'   => 'template.index',
+                    'label'   => 'Kelola Template',
+                    'pattern' => 'template*',
+                    'icon'    => 'template',
+                ],
+                [
                     'route'   => 'riwayat',
                     'label'   => 'Riwayat Pengiriman',
                     'pattern' => 'riwayat*',
@@ -105,6 +111,14 @@
                                 <circle cx="16.5" cy="17" r="1.5" fill="currentColor" stroke="none"/>
                             </svg>
                             @break
+
+                        {{-- Template (Kelola Template) --}}
+                        @case('template')
+                            <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" class="w-[18px] h-[18px]">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <path d="M14 2v6h6M8 13h8M8 17h5"/>
+                            </svg>
+                        @break
 
                         {{-- History cog (Riwayat Pengiriman) --}}
                         @case('history-cog')

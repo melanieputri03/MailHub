@@ -19,6 +19,10 @@ class TemplateEmail extends Model
         'subject',
         'body',
         'status',
+        'header_html',      
+        'footer_html',     
+        'header_css',       
+        'footer_css',  
     ];
 
     // Relasi: 1 Template bisa dipakai banyak Email

@@ -40,10 +40,10 @@ class Penerima extends Model
         return $this->belongsToMany(
             Grup::class,
             'grup_penerima',
-            'penerima_id',     // FK di pivot
-            'grup_id',         // FK lawan
-            'penerima_id',     // PK lokal (Penerima)
-            'grup_id'          // PK lawan (Grup)
+            'penerima_id',     
+            'grup_id',         
+            'penerima_id',    
+            'grup_id'          
         )->withTimestamps();
     }
 
@@ -53,10 +53,10 @@ class Penerima extends Model
         return $this->belongsToMany(
             Email::class,
             'email_penerima',
-            'penerima_id',     // FK di pivot
-            'email_id',        // FK lawan
-            'penerima_id',     // PK lokal
-            'email_id'         // PK lawan
+            'penerima_id',    
+            'email_id',        
+            'penerima_id',     
+            'email_id'        
         )->withTimestamps();
     }
 
