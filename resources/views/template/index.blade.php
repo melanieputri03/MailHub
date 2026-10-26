@@ -26,13 +26,6 @@
     </button>
 </div>
 
-{{-- FLASH MESSAGE --}}
-@if(session('success'))
-    <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-[13px] px-4 py-3 rounded-md">
-        {{ session('success') }}
-    </div>
-@endif
-
 {{--  SEARCH BAR  --}}
 <div class="mb-4 flex items-center gap-3">
     <div class="relative flex-1">

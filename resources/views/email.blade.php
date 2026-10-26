@@ -103,6 +103,32 @@
 
     @if($template->count() > 0)
 
+        {{-- DROPDOWN PILIH CEPAT --}}
+        <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-4 rounded-lg border border-outline shadow-sm">
+            <label class="text-[13px] font-bold text-ink whitespace-nowrap flex items-center gap-2">
+                    <path d="m13 2-2 10h8L11 22l2-10H5l8-10z"/>
+                </svg>
+                Pilih Cepat:
+            </label>
+            <select id="dropdownTemplateCepat" onchange="pilihTemplateCepat(this.value)" 
+                    class="flex-1 w-full border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink bg-cream/30
+                           focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold transition cursor-pointer">
+                <option value="">-- Pilih Template dari Dropdown --</option>
+                @foreach($template as $tpl)
+                    <option value="{{ $tpl->template_email_id }}" 
+                            data-template='@json($tpl)'>
+                        {{ $tpl->nama }} @if($tpl->deskripsi) — {{ $tpl->deskripsi }} @endif
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="flex items-center gap-3 mb-4">
+            <div class="flex-1 h-px bg-outline"></div>
+            <span class="text-[11px] font-bold text-muted uppercase tracking-wider">Atau Lihat Visual</span>
+            <div class="flex-1 h-px bg-outline"></div>
+        </div>
+
         {{-- SEARCH BAR --}}
         <div class="mb-4 flex items-center gap-3">
             <div class="relative flex-1">
@@ -1234,6 +1260,20 @@ window.hapusSemuaExisting = function () {
             input.value = '';
             filterTemplate();
             input.focus();
+        }
+    }
+
+    // ⚡ FUNGSI DROPDOWN PILIH CEPAT ⚡
+    function pilihTemplateCepat(id) {
+        if (!id) return;
+        
+        const select = document.getElementById('dropdownTemplateCepat');
+        const option = select.options[select.selectedIndex];
+        const tplData = option.getAttribute('data-template');
+        
+        if (tplData) {
+            const tpl = JSON.parse(tplData);
+            pilihTemplate(tpl); // Panggil fungsi pilih template yang udah ada
         }
     }
 </script>
