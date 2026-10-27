@@ -82,7 +82,7 @@
                         <div class="text-center text-[4px] text-white font-bold mb-0.5">PT BATAMINDO INVESTMENT</div>
                         <div class="text-center text-[3.5px] text-gray-400 leading-tight">
                             Wisma Batamindo Lt. 3<br>
-                            Telp: (0778) 431 888
+                            Telp: (62-770) 611-222
                         </div>
                     </div>
                 </div>

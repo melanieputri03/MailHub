@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TemplateEmail;
 use Illuminate\Http\Request;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 class TemplateController extends Controller
 {
@@ -13,7 +14,7 @@ class TemplateController extends Controller
         return view('template.index', compact('template'));
     }
 
-    // ⚡ SIMPAN DATA DASAR KE SESSION (BELUM KE DB) ⚡
+    // SIMPAN DATA DASAR KE SESSION (BELUM KE DB)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -33,7 +34,7 @@ class TemplateController extends Controller
         return redirect()->route('template.editor.draft');
     }
 
-    // ⚡ UPDATE DATA (KALAU DARI TOMBOL EDIT / DB) ⚡
+    // UPDATE DATA (KALAU DARI TOMBOL EDIT / DB)
         public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -46,7 +47,6 @@ class TemplateController extends Controller
 
         $validated['body'] = $this->cleanBody($validated['body'] ?? '');
 
-        // ⚡ KALAU ID = 0 (DATA BARU), SIMPAN KE SESSION LAGI ⚡
         if ($id == 0) {
             session(['draft_template' => $validated]);
             return redirect()->route('template.editor.draft')
@@ -68,7 +68,7 @@ class TemplateController extends Controller
         return redirect()->route('template.index')->with('success', 'Template berhasil dihapus.');
     }
 
-    // ⚡ HALAMAN EDITOR UNTUK DATA BARU (DARI SESSION) ⚡
+    // HALAMAN EDITOR UNTUK DATA BARU
     public function editorDraft()
     {
         $draft = session('draft_template');
@@ -86,50 +86,64 @@ class TemplateController extends Controller
         return view('template.editor', compact('template'));
     }
 
-    // ⚡ HALAMAN EDITOR UNTUK DATA LAMA (DARI DB) ⚡
+    // HALAMAN EDITOR UNTUK DATA LAMA 
     public function editor($id)
     {
         $template = TemplateEmail::findOrFail($id);
         return view('template.editor', compact('template'));
     }
 
-    // ⚡ SIMPAN FINAL (GABUNGKAN SESSION + DESAIN GRAPESJS) ⚡
+    // SIMPAN FINAL (GABUNGKAN SESSION + DESAIN GRAPESJS)
     public function saveEditor(Request $request, $id)
     {
         $validated = $request->validate([
-            'header_html' => 'nullable|string',
-            'footer_html' => 'nullable|string',
-            'header_css'  => 'nullable|string',
-            'footer_css'  => 'nullable|string',
+            'header_html' => 'nullable|string|max:200000',
+            'footer_html' => 'nullable|string|max:200000',
+            'header_css'  => 'nullable|string|max:200000',
+            'footer_css'  => 'nullable|string|max:200000',
         ]);
+
+        $css = ($validated['header_css'] ?? '') . "\n" . ($validated['footer_css'] ?? '');
+
+        // CSS di-inline ke atribut style, jadi kolom *_css dikosongkan
+        $desain = [
+            'header_html' => $this->inlineFragment($validated['header_html'] ?? '', $css),
+            'footer_html' => $this->inlineFragment($validated['footer_html'] ?? '', $css),
+            'header_css'  => '',
+            'footer_css'  => '',
+        ];
 
         $draft = session('draft_template');
 
         if ($draft) {
-            // === JIKA DATA BARU (DARI SESSION) ===
-            $draft['header_html'] = $validated['header_html'] ?? '';
-            $draft['footer_html'] = $validated['footer_html'] ?? '';
-            $draft['header_css']  = $validated['header_css'] ?? '';
-            $draft['footer_css']  = $validated['footer_css'] ?? '';
-
-            TemplateEmail::create($draft);
-
-            // Hapus session karena udah masuk DB
+            // DATA BARU (DARI SESSION)
+            TemplateEmail::create(array_merge($draft, $desain));
             session()->forget('draft_template');
 
-            return redirect()->route('template.index')->with('success', 'Template baru berhasil dibuat dan disimpan!');
-        } else {
-            // === JIKA EDIT DATA LAMA (DARI DB) ===
-            $template = TemplateEmail::findOrFail($id);
-            $template->update([
-                'header_html' => $validated['header_html'] ?? '',
-                'footer_html' => $validated['footer_html'] ?? '',
-                'header_css'  => $validated['header_css'] ?? '',
-                'footer_css'  => $validated['footer_css'] ?? '',
-            ]);
-
-            return redirect()->route('template.index')->with('success', 'Desain Header & Footer berhasil disimpan.');
+            return redirect()->route('template.index')
+                ->with('success', 'Template baru berhasil dibuat dan disimpan!');
         }
+
+        // EDIT DATA LAMA (DARI DB)
+        TemplateEmail::findOrFail($id)->update($desain);
+
+        return redirect()->route('template.index')
+            ->with('success', 'Desain Header & Footer berhasil disimpan.');
+    }
+
+    // Inline CSS ke dalam HTML potongan header/footer
+    private function inlineFragment(string $html, string $css): string
+    {
+        $html = trim($html);
+        if ($html === '') {
+            return '';   // kosong → broadcast.blade.php pakai header/footer bawaan
+        }
+
+        $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);
+
+        $out = (new CssToInlineStyles())->convert($html, $css);
+
+        return preg_match('#<body[^>]*>(.*)</body>#is', $out, $m) ? trim($m[1]) : $html;
     }
 
     // Bersihkan body

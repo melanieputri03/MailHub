@@ -1,27 +1,16 @@
-{{-- HEADER EMAIL BIC --}}
-<div class="bg-white px-6 py-5 border-b-2 border-maroon">
-    <div class="flex items-center gap-4">
-
-        {{-- LOGO LANGSUNG (TANPA BACKGROUND) --}}
-        <img src="{{ asset('images/logo-batamindo.jpg') }}"
-             alt="Batamindo"
-             style="height:48px; width:auto; max-width:none; display:block;">     
-
-        {{-- Nama Perusahaan --}}
-        <div class="flex-1 min-w-0">
-            <div class="text-maroon font-bold text-[16px] tracking-tight leading-tight">
-                BATAMINDO INDUSTRIAL PARK
-            </div>
-            <div class="text-muted text-[11px] tracking-[0.1em] mt-0.5">
-                PT BATAMINDO INVESTMENT CAKRAWALA
-            </div>
-        </div>
-
-        {{-- Tanggal & Ref --}}
-        <div class="text-right text-[10px] text-muted leading-snug flex-shrink-0">
-            <div class="font-semibold text-ink">{{ date('d M Y') }}</div>
-            <div>Ref: BIC/{{ date('Y') }}</div>
-        </div>
-
-    </div>
-</div>
+@php $logo = $logoSrc ?? asset('images/logo-batamindo.jpg'); @endphp
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td width="100" style="padding:20px 0 20px 24px; border-bottom:2px solid #803033; vertical-align:middle;">
+            <img src="{{ $logo }}" alt="Batamindo" style="height:48px; width:auto; display:block;">
+        </td>
+        <td style="padding:20px 12px; border-bottom:2px solid #803033; vertical-align:middle; font-family:Arial,Helvetica,sans-serif;">
+            <div style="color:#803033; font-weight:bold; font-size:16px;">BATAMINDO INDUSTRIAL PARK</div>
+            <div style="color:#6B7280; font-size:11px; letter-spacing:0.1em; margin-top:2px;">PT BATAMINDO INVESTMENT CAKRAWALA</div>
+        </td>
+        <td align="right" style="padding:20px 24px 20px 0; border-bottom:2px solid #803033; vertical-align:top; font-family:Arial,Helvetica,sans-serif; font-size:10px; color:#6B7280;">
+            <div style="font-weight:bold; color:#202124;">{{ now()->format('d M Y') }}</div>
+            <div>Ref: BIC/{{ now()->format('Y') }}</div>
+        </td>
+    </tr>
+</table>

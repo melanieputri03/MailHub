@@ -117,12 +117,18 @@
                     <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px 8px 0 0; overflow:hidden;">
                         <tr>
                             <td style="padding:20px 24px; border-bottom:2px solid #803033;">
-                                <table width="100%">
+                                <table width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
-                                        <td width="90"><img src="${logoUrl}" style="height:48px;"></td>
-                                        <td style="padding-left:12px;">
+                                        <td width="90">
+                                            <img src="${logoUrl}" style="height:48px; display:block;">
+                                        </td>
+                                        <td style="padding-left:12px; vertical-align:middle;">
                                             <div style="color:#803033; font-weight:bold; font-size:16px;">BATAMINDO INDUSTRIAL PARK</div>
                                             <div style="color:#6B7280; font-size:11px;">PT BATAMINDO INVESTMENT CAKRAWALA</div>
+                                        </td>
+                                        <td align="right" style="vertical-align:top;">
+                                            <div style="color:#202124; font-weight:bold; font-size:10px;">27 Oct 2026</div>
+                                            <div style="color:#6B7280; font-size:10px;">Ref: BIC/2026</div>
                                         </td>
                                     </tr>
                                 </table>
@@ -163,6 +169,19 @@
                                 <div style="color:#ffffff; text-align:center; font-size:12px; font-weight:bold;">PT BATAMINDO INVESTMENT CAKRAWALA</div>
                                 <div style="color:#9CA3AF; text-align:center; font-size:10px; margin-top:8px;">
                                     Wisma Batamindo Lt. 3, Jl. Rasamala No. 1<br>Mukakuning, Batam 29433, Indonesia
+                                </div>
+                                <div style="color:#9CA3AF; text-align:center; font-size:10px; margin-top:8px;">
+                                    Telp: (0778) 431 888 &bull; Fax: (0778) 431 999<br>
+                                    info@batamindo.co.id &bull; www.batamindo.co.id
+                                </div>
+                                <div style="text-align:center; margin-top:12px;">
+                                    <a href="#" style="display:inline-block; width:24px; height:24px; background:#4b5563; border-radius:50%; color:white; text-align:center; line-height:24px; margin:0 4px; font-size:12px;">f</a>
+                                    <a href="#" style="display:inline-block; width:24px; height:24px; background:#4b5563; border-radius:50%; color:white; text-align:center; line-height:24px; margin:0 4px; font-size:12px;">in</a>
+                                    <a href="#" style="display:inline-block; width:24px; height:24px; background:#4b5563; border-radius:50%; color:white; text-align:center; line-height:24px; margin:0 4px; font-size:12px;">@</a>
+                                </div>
+                                <div style="color:#6B7280; text-align:center; font-size:9px; margin-top:12px;">
+                                    &copy; 2026 BIC MailHub. All rights reserved.<br>
+                                    Unsubscribe &bull; Privacy Policy
                                 </div>
                             </td>
                         </tr>

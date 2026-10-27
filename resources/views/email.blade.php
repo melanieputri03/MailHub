@@ -107,7 +107,6 @@
         <div class="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-4 rounded-lg border border-outline shadow-sm">
             <label class="text-[13px] font-bold text-ink whitespace-nowrap flex items-center gap-2">
                     <path d="m13 2-2 10h8L11 22l2-10H5l8-10z"/>
-                </svg>
                 Pilih Cepat:
             </label>
             <select id="dropdownTemplateCepat" onchange="pilihTemplateCepat(this.value)" 
@@ -185,7 +184,7 @@
                                     <div class="text-center text-[4px] text-white font-bold mb-0.5">PT BATAMINDO INVESTMENT</div>
                                     <div class="text-center text-[3.5px] text-gray-400 leading-tight">
                                         Wisma Batamindo Lt. 3<br>
-                                        Telp: (0778) 431 888
+                                        Telp: (62-770) 611-222
                                     </div>
                                 </div>
                             </div>
@@ -599,7 +598,9 @@
                     <div class="bg-white border border-outline rounded-lg overflow-hidden shadow-sm">
                         
                         {{-- HEADER (ID previewHeader) --}}
-                        <div id="previewHeader" class="email-layout">@include('partials.email-header')</div>
+                        <div id="previewHeader" class="email-layout">
+                            @include('partials.email-header')
+                        </div>
 
                         {{-- BODY EMAIL --}}
                         <div class="px-6 py-6 min-h-[280px]">
@@ -612,8 +613,9 @@
                         </div>
 
                         {{-- FOOTER (ID previewFooter) --}}
-                        <div id="previewFooter" class="email-layout">@include('partials.email-footer')</div>
-
+                        <div id="previewFooter" class="email-layout">
+                            @include('partials.email-footer')
+                        </div>
                     </div>
 
                     <div class="mt-3 bg-cream/60 border border-outline rounded-md p-3">
@@ -638,7 +640,7 @@
     .email-layout table[width="600"] { width: 100% !important; max-width: none !important; }
     .email-layout [style*="F5ECEA" i] { background: transparent !important; }
     .email-layout td[align="center"] { padding: 0 !important; }
-    .email-layout img { max-width: 100%; }
+    .email-layout img { max-width: none; }
     .email-body p { margin: 0 0 10px; line-height: 1.6; }
 
     /* Body Email */
@@ -650,34 +652,20 @@
 <script>
     const TEMPLATES = @json($template->keyBy('template_email_id'));
 
-        function setPreviewLayout(tpl) {
-        const defH = document.getElementById('defaultHeaderTpl')?.innerHTML || '';
-        const defF = document.getElementById('defaultFooterTpl')?.innerHTML || '';
+    function setPreviewLayout(tpl) {
+        const defH = document.getElementById('defaultHeaderTpl').innerHTML;
+        const defF = document.getElementById('defaultFooterTpl').innerHTML;
 
         const headerHtml = (tpl && tpl.header_html && tpl.header_html.trim()) ? tpl.header_html : defH;
         const footerHtml = (tpl && tpl.footer_html && tpl.footer_html.trim()) ? tpl.footer_html : defF;
 
-        // Mengecek apakah elemennya ada, baru diisi
         const previewHeader = document.getElementById('previewHeader');
         const previewFooter = document.getElementById('previewFooter');
-
         if (previewHeader) previewHeader.innerHTML = headerHtml;
         if (previewFooter) previewFooter.innerHTML = footerHtml;
 
-        // Pasang CSS
-        let styleEl = document.getElementById('dynamic-template-css');
-        if (!styleEl) {
-            styleEl = document.createElement('style');
-            styleEl.id = 'dynamic-template-css';
-            document.head.appendChild(styleEl);
-        }
-
-        if (tpl && tpl.header_css) {
-            let css = (tpl.header_css + '\n' + (tpl.footer_css || '')).replace(/}/g, ' !important;}');
-            styleEl.innerHTML = css;
-        } else {
-            styleEl.innerHTML = '';
-        }
+        // buang CSS dinamis sisa versi lama (CSS sekarang sudah inline di HTML)
+        document.getElementById('dynamic-template-css')?.remove();
     }
     let currentStep = 1;
 
