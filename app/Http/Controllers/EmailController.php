@@ -11,6 +11,7 @@ use App\Models\Penerima;
 use App\Models\TemplateEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class EmailController extends Controller
 {
@@ -50,18 +51,27 @@ class EmailController extends Controller
         ));
     }
 
+        public function resetDraft()
+    {
+        session()->forget('email_draft');
+        return redirect()->route('email.index');
+    }
+
     // Preview email sebelum kirim
     public function preview(Request $request)
     {
         $data = $request->validate([
-            'nama'                 => 'required|string',
-            'subject'              => 'required|string',
-            'body'                 => 'required|string',
-            'template_id'          => 'nullable|exists:template_email,template_email_id',
-            'penerima_mode'        => 'required|in:semua,divisi,grup,manual',
+            'nama_email'    => 'required|string',
+            'subject'       => 'required|string',
+            'body'          => 'required|string',
+            'template_id'   => 'nullable|exists:template_email,template_email_id',
+            'penerima_mode' => 'required|in:semua,divisi,grup,manual',
             'divisi_ids'           => 'nullable|array',
+            'divisi_ids.*'         => 'nullable|integer|distinct|exists:divisi,divisi_id',
             'grup_ids'             => 'nullable|array',
+            'grup_ids.*'           => 'nullable|integer|distinct|exists:grup,grup_id',
             'penerima_ids'         => 'nullable|array',
+            'penerima_ids.*'       => 'nullable|integer|distinct|exists:penerima,penerima_id',
             'attachments'          => 'nullable|array',
             'attachments.*'        => 'file|max:3072|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,zip',
             'existing_attachments'              => 'nullable|array',
@@ -175,19 +185,31 @@ class EmailController extends Controller
     // Kirim email via SMTP (dengan attachment)
     public function kirim(Request $request)
     {
-        $data = $request->validate([
-            'nama'          => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'nama_email'    => 'required|string', 
             'subject'       => 'required|string',
             'body'          => 'required|string',
             'template_id'   => 'nullable|exists:template_email,template_email_id',
             'penerima_mode' => 'required|in:semua,divisi,grup,manual',
-            'divisi_ids'    => 'nullable|array',
-            'grup_ids'      => 'nullable|array',
-            'penerima_ids'  => 'nullable|array',
-            'attachments'   => 'nullable|array',
+            'divisi_ids'           => 'nullable|array',
+            'divisi_ids.*'         => 'nullable|integer|distinct|exists:divisi,divisi_id',
+            'grup_ids'             => 'nullable|array',
+            'grup_ids.*'           => 'nullable|integer|distinct|exists:grup,grup_id',
+            'penerima_ids'         => 'nullable|array',
+            'penerima_ids.*'       => 'nullable|integer|distinct|exists:penerima,penerima_id',
+            'attachments'          => 'nullable|array',
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->route('email.index')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+
         $bodyHtml = $data['body'];
+
         if (is_string($bodyHtml) && str_starts_with(trim($bodyHtml), '{"')) {
             $decoded = json_decode($bodyHtml, true);
             if (is_array($decoded) && isset($decoded['body'])) {
@@ -225,7 +247,7 @@ class EmailController extends Controller
                 ->with('error', 'Tidak ada penerima yang valid.');
         }
 
-        // Guard bandwidth — cegah limit Gmail (1.5 GB/hari)
+        // Guard bandwidth
         if (!empty($attachments)) {
             $totalSize = 0;
             foreach ($attachments as $att) {
@@ -239,10 +261,10 @@ class EmailController extends Controller
             }
         }
 
-        // 1. Simpan email ke DB (pakai bodyHtml yang udah di-decode)
+        // 1. Simpan email ke DB
         $emailRecord = Email::create([
             'template_id' => $data['template_id'] ?: null,
-            'nama'        => $data['nama'],
+            'nama'        => $data['nama_email'],
             'subject'     => $data['subject'],
             'body'        => $bodyHtml,
             'status'      => 'sent',
@@ -259,7 +281,7 @@ class EmailController extends Controller
         foreach ($penerima as $p) {
             try {
                 $mailable = new BroadcastMail(
-                    $data['nama'],
+                    $data['nama_email'],
                     $data['subject'],
                     $bodyHtml,
                     $data['template_id'] ?? null
@@ -335,16 +357,27 @@ class EmailController extends Controller
         ]);
     }
 
-    private function resolvePenerima($mode, $divisiIds, $grupIds, $penerimaIds)
+        private function resolvePenerima($mode, $divisiIds, $grupIds, $penerimaIds)
     {
         $query = Penerima::aktif()->with('divisi');
 
-        if ($mode === 'divisi' && !empty($divisiIds)) {
-            $query->whereIn('divisi_id', $divisiIds);
-        } elseif ($mode === 'grup' && !empty($grupIds)) {
-            $query->whereHas('grup', fn($q) => $q->whereIn('grup.grup_id', $grupIds));
-        } elseif ($mode === 'manual' && !empty($penerimaIds)) {
-            $query->whereIn('penerima_id', $penerimaIds);
+        switch ($mode) {
+            case 'semua':
+                break;
+            case 'divisi':
+                if (empty($divisiIds)) return collect(); 
+                $query->whereIn('divisi_id', $divisiIds);
+                break;
+            case 'grup':
+                if (empty($grupIds)) return collect(); 
+                $query->whereHas('grup', fn ($q) => $q->whereIn('grup.grup_id', $grupIds));
+                break;
+            case 'manual':
+                if (empty($penerimaIds)) return collect(); 
+                $query->whereIn('penerima_id', $penerimaIds);
+                break;
+            default:
+                return collect();
         }
 
         return $query->distinct()->orderBy('nama')->get();

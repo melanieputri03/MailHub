@@ -54,7 +54,7 @@
                 {{-- BODY EMAIL --}}
                 <div class="px-8 py-8 flex-1">
                     <div class="text-center mb-6">
-                        <h2 class="text-[20px] font-bold text-maroon tracking-wide">{{ $data['nama'] }}</h2>
+                        <h2 class="text-[20px] font-bold text-maroon tracking-wide">{{ $data['nama_email'] }}</h2>
                     </div>
                     <div class="email-body text-[13px] text-ink">
                         {!! $data['body'] !!}
@@ -85,7 +85,7 @@
             {{-- Nama Internal --}}
             <div class="bg-white rounded-lg border border-outline p-4">
                 <div class="text-[10px] text-muted uppercase tracking-wider mb-1">Nama Internal</div>
-                <div class="text-[13px] font-semibold text-ink">{{ $data['nama'] }}</div>
+                <div class="text-[13px] font-semibold text-ink">{{ $data['nama_email'] }}</div>
             </div>
 
             {{-- INFO LAMPIRAN --}}
@@ -202,7 +202,7 @@
             {{-- Tombol Aksi --}}
             <form id="formKirim" method="POST" action="{{ route('email.kirim') }}">
                 @csrf
-                <input type="hidden" name="nama"          value="{{ $data['nama'] }}">
+                <input type="hidden" name="nama_email"          value="{{ $data['nama_email'] }}">
                 <input type="hidden" name="subject"       value="{{ $data['subject'] }}">
                 <textarea name="body" class="hidden">{{ $data['body'] }}</textarea>
                 <input type="hidden" name="template_id"   value="{{ $data['template_id'] ?? '' }}">

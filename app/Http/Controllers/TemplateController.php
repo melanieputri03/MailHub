@@ -27,10 +27,17 @@ class TemplateController extends Controller
 
         $validated['body'] = $this->cleanBody($validated['body'] ?? '');
 
-        // Simpan sementara ke Session
-        session(['draft_template' => $validated]);
+        $lanjutDraft = $request->input('template_id') === '0';          
 
-        // Arahkan ke Editor (mode Draft)
+        if ($lanjutDraft && !session()->has('draft_template')) { 
+            return redirect()->route('template.index')
+                ->with('error', 'Sesi draft habis. Silakan buat ulang template.');
+        }
+
+        $draftLama = $lanjutDraft ? session('draft_template', []) : [];  
+
+        session(['draft_template' => array_merge($draftLama, $validated)]);
+
         return redirect()->route('template.editor.draft');
     }
 
@@ -48,7 +55,8 @@ class TemplateController extends Controller
         $validated['body'] = $this->cleanBody($validated['body'] ?? '');
 
         if ($id == 0) {
-            session(['draft_template' => $validated]);
+            session(['draft_template' => array_merge(session('draft_template', []), $validated)]);
+
             return redirect()->route('template.editor.draft')
                 ->with('success', 'Data diperbarui. Silakan lanjutkan desain Header & Footer.');
         }
@@ -77,11 +85,18 @@ class TemplateController extends Controller
             return redirect()->route('template.index')->with('error', 'Sesi habis. Silakan isi ulang form.');
         }
 
-        // Bikin objek template palsu
         $template = new TemplateEmail();
-        $template->template_email_id = 0; // ID 0 artinya belum masuk DB
-        $template->nama = $draft['nama'];
-        $template->body = $draft['body'];
+        $template->template_email_id = 0;
+        $template->nama      = $draft['nama'];
+        $template->deskripsi = $draft['deskripsi'] ?? ''; 
+        $template->subject   = $draft['subject'] ?? '';   
+        $template->body      = $draft['body'];
+        $template->status    = $draft['status'] ?? 'active';
+
+        $template->header_html = $draft['header_html'] ?? '';
+        $template->footer_html = $draft['footer_html'] ?? '';
+        $template->header_css  = $draft['header_css'] ?? '';
+        $template->footer_css  = $draft['footer_css'] ?? '';
         
         return view('template.editor', compact('template'));
     }
@@ -105,7 +120,6 @@ class TemplateController extends Controller
 
         $css = ($validated['header_css'] ?? '') . "\n" . ($validated['footer_css'] ?? '');
 
-        // CSS di-inline ke atribut style, jadi kolom *_css dikosongkan
         $desain = [
             'header_html' => $this->inlineFragment($validated['header_html'] ?? '', $css),
             'footer_html' => $this->inlineFragment($validated['footer_html'] ?? '', $css),
@@ -113,19 +127,36 @@ class TemplateController extends Controller
             'footer_css'  => '',
         ];
 
-        $draft = session('draft_template');
+        // TEMPLATE BARU (belum ada di DB)
+        if ((int) $id === 0) {
+            $draft = session('draft_template');
 
-        if ($draft) {
-            // DATA BARU (DARI SESSION)
-            TemplateEmail::create(array_merge($draft, $desain));
+            if (!$draft) {
+                return $request->ajax()
+                    ? response()->json(['success' => false, 'message' => 'Sesi habis. Isi ulang form template.'], 410)
+                    : redirect()->route('template.index')->with('error', 'Sesi habis. Silakan isi ulang form.');
+            }
+
+            $draft = array_merge($draft, $desain);
+
+            if ($request->ajax()) {
+                session(['draft_template' => $draft]);        
+                return response()->json(['success' => true]);
+            }
+
+            TemplateEmail::create($draft);                    
             session()->forget('draft_template');
 
             return redirect()->route('template.index')
                 ->with('success', 'Template baru berhasil dibuat dan disimpan!');
         }
 
-        // EDIT DATA LAMA (DARI DB)
+        // TEMPLATE LAMA (sudah ada di DB) 
         TemplateEmail::findOrFail($id)->update($desain);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);    
+        }
 
         return redirect()->route('template.index')
             ->with('success', 'Desain Header & Footer berhasil disimpan.');
@@ -136,7 +167,7 @@ class TemplateController extends Controller
     {
         $html = trim($html);
         if ($html === '') {
-            return '';   // kosong → broadcast.blade.php pakai header/footer bawaan
+            return '';
         }
 
         $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);

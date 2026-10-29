@@ -3,6 +3,16 @@
 
 @section('content')
 
+@if ($errors->any())
+    <div class="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-700">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 {{-- HEADER --}}
 <div class="mb-5">
     <h1 class="text-[18px] font-bold text-ink flex items-center gap-2">
@@ -240,13 +250,13 @@
             <h2 class="text-[15px] font-bold text-ink" id="step3-title">Edit Email</h2>
             <p class="text-[12px] text-muted mt-0.5">Edit subject &amp; isi email, lalu pilih penerima.</p>
         </div>
-        <button type="button" onclick="kembaliKeStep(1)"
-                class="bg-white border border-outline text-[12px] text-ink px-3 py-2 rounded-md hover:bg-cream transition flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path d="M19 12H5M11 6l-6 6 6 6"/>
-            </svg>
-            Ganti Mode
-        </button>
+        <a href="{{ route('email.resetDraft') }}"
+    class="bg-white border border-outline text-[12px] text-ink px-3 py-2 rounded-md hover:bg-cream transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M19 12H5M11 6l-6 6 6 6"/>
+        </svg>
+        Ganti Mode
+    </a>
     </div>
 
     <form id="formEmail" method="POST" action="{{ route('email.preview') }}" enctype="multipart/form-data">
@@ -263,7 +273,7 @@
                     <label class="text-[12px] font-semibold text-ink">
                         Nama / Judul Email (Internal) <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="nama" id="inputNama" required
+                    <input type="text" name="nama_email" id="inputNama" required
                            oninput="updatePreview()"
                            placeholder="Misal: Pengumuman Agustusan"
                            class="w-full mt-1.5 border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink
@@ -1149,7 +1159,7 @@ window.hapusSemuaExisting = function () {
 
         @if(isset($draft) && $draft)
             document.getElementById('formTemplateId').value = '{{ $draft["template_id"] ?? "" }}';
-            document.getElementById('inputNama').value      = @json($draft['nama'] ?? '');
+            document.getElementById('inputNama').value      = @json($draft['nama_email'] ?? '');
             document.getElementById('inputSubject').value   = @json($draft['subject'] ?? '');
 
             // Set body ke TinyMCE

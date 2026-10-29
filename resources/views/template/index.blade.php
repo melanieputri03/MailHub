@@ -188,7 +188,7 @@
 
                 {{-- Nama Template --}}
                 <div>
-                    <label class="text-[12px] font-semibold text-ink">
+                    <label class="text-[14px] font-semibold text-ink">
                         Nama Template <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="nama" id="formNama" required maxlength="100"
@@ -199,7 +199,7 @@
 
                 {{-- Deskripsi --}}
                 <div>
-                    <label class="text-[12px] font-semibold text-ink">Deskripsi</label>
+                    <label class="text-[14px] font-semibold text-ink">Deskripsi</label>
                     <input type="text" name="deskripsi" id="formDeskripsi" maxlength="255"
                            placeholder="Misal: Template untuk pengumuman resmi"
                            class="w-full mt-1.5 border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink
@@ -208,7 +208,7 @@
 
                 {{-- Subject --}}
                 <div>
-                    <label class="text-[12px] font-semibold text-ink">Subject Email</label>
+                    <label class="text-[14px] font-semibold text-ink">Subject Email</label>
                     <input type="text" name="subject" id="formSubject" maxlength="255"
                            placeholder="Misal: [PENGUMUMAN] Informasi Penting"
                            class="w-full mt-1.5 border border-outline rounded-md px-3.5 py-2.5 text-[13px] text-ink
@@ -225,7 +225,7 @@
 
                 {{-- Status --}}
                 <div>
-                    <label class="text-[12px] font-semibold text-ink">Status Keaktifan</label>
+                    <label class="text-[14px] font-semibold text-ink">Status Keaktifan</label>
                     <div class="mt-2 flex items-center gap-3">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="status" value="active" id="statusAktif" checked class="accent-gold">
@@ -332,6 +332,26 @@
         border-top: 1px solid #E0D5D2 !important;
         background-color: #FAFAFA !important;
     }
+
+    #modalTemplate label,
+    #modalTemplate .text-\[12px\] { 
+        font-size: 14px !important; 
+    }
+
+    #modalTemplate input, 
+    #modalTemplate select, 
+    #modalTemplate textarea {
+        font-size: 15px !important; 
+        padding: 10px 14px !important; 
+    }
+
+    #modalTitle {
+        font-size: 18px !important;
+    }
+
+    .tox-tinymce .tox-edit-area__iframe body {
+        font-size: 15px !important; 
+    }
 </style>
 @endpush
 
@@ -381,7 +401,7 @@
                 document.getElementById('formMethod').value = 'PUT';
             }
             
-            document.getElementById('formTemplateId').value = data.template_email_id || '';
+            document.getElementById('formTemplateId').value = (data.template_email_id ?? '');
 
             document.getElementById('formNama').value      = data.nama || '';
             document.getElementById('formDeskripsi').value = data.deskripsi || '';

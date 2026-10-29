@@ -27,6 +27,7 @@ Route::delete('/grup/{grup}',    [GrupController::class, 'destroy'])->name('grup
 Route::get('/email',          [EmailController::class, 'index'])  ->name('email.index');
 Route::post('/email/preview', [EmailController::class, 'preview'])->name('email.preview');
 Route::post('/email/kirim',   [EmailController::class, 'kirim'])  ->name('email.kirim');
+Route::get('/email/reset-draft', [EmailController::class, 'resetDraft'])->name('email.resetDraft');
 
 // UPLOAD GAMBAR UNTUK BODY EMAIL
 Route::post('/email/upload-image', [EmailController::class, 'uploadImage'])->name('email.uploadImage');

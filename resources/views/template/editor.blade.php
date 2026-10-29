@@ -127,8 +127,8 @@
                                             <div style="color:#6B7280; font-size:11px;">PT BATAMINDO INVESTMENT CAKRAWALA</div>
                                         </td>
                                         <td align="right" style="vertical-align:top;">
-                                            <div style="color:#202124; font-weight:bold; font-size:10px;">27 Oct 2026</div>
-                                            <div style="color:#6B7280; font-size:10px;">Ref: BIC/2026</div>
+                                            <div style="color:#202124; font-weight:bold; font-size:10px;">${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</div>
+                                            <div style="color:#6B7280; font-size:10px;">Ref: BIC/${new Date().getFullYear()}</div>
                                         </td>
                                     </tr>
                                 </table>
@@ -233,8 +233,19 @@
             styleManager: {
                 appendTo: '#styles',
                 sectors: [
+                        { 
+                            name: 'Warna Teks',
+                            open: false,
+                            properties: [
+                                {
+                                    property: 'color',
+                                    type: 'color',
+                                    defaults: '#202124',
+                                }
+                            ]
+                        },
+
                     { name: 'Dimensi', open: false, properties: ['width', 'height', 'max-width', 'min-height', 'margin', 'padding'] },
-                    { name: 'Tipografi', open: false, properties: ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'line-height', 'text-align'] },
                     { name: 'Background', open: false, properties: ['background-color', 'background-image', 'background-repeat', 'background-position'] },
                     { name: 'Border', open: false, properties: ['border-width', 'border-style', 'border-color', 'border-radius'] },
                 ],
@@ -250,6 +261,27 @@
         if (savedCss.trim()) editor.setStyle(savedCss);
     });
 
+    // Ambil desain dari canvas: hanya header & footer (preview body dibuang)
+    function ambilDesain() {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = editor.getHtml();
+
+        const bodyEl = tempDiv.querySelector('.body-preview-locked');
+        if (bodyEl) {
+            [...tempDiv.children].find(el => el.contains(bodyEl))?.remove();
+        }
+
+        const headerEl = tempDiv.querySelector('.bic-header');
+        const footerEl = tempDiv.querySelector('.bic-footer');
+        if (footerEl) footerEl.remove();
+
+        return {
+            header: headerEl ? headerEl.outerHTML : tempDiv.innerHTML.trim(),
+            footer: footerEl ? footerEl.outerHTML : '',
+            css:    editor.getCss(),
+        };
+    }
+
     function simpanEditor() {
         if (!editor) return;
 
@@ -257,37 +289,54 @@
         btn.disabled = true;
         btn.innerHTML = 'Menyimpan...';
 
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = editor.getHtml();
-        const fullCss = editor.getCss();
-
-        const bodyToRemove = tempDiv.querySelector('.body-preview-locked');
-        if (bodyToRemove && bodyToRemove.closest('table')) {
-            bodyToRemove.closest('table').remove();
-        }
-
-        const headerEl = tempDiv.querySelector('.bic-header');
-        const footerEl = tempDiv.querySelector('.bic-footer');
-        
-        if (footerEl) footerEl.remove(); 
-
-        // 4. Set ke hidden input
-        document.getElementById('inputHeaderHtml').value = headerEl ? headerEl.outerHTML : tempDiv.innerHTML;
-        document.getElementById('inputFooterHtml').value = footerEl ? footerEl.outerHTML : '';
-        document.getElementById('inputHeaderCss').value  = fullCss;
-        document.getElementById('inputFooterCss').value  = fullCss;
+        const d = ambilDesain();
+        document.getElementById('inputHeaderHtml').value = d.header;
+        document.getElementById('inputFooterHtml').value = d.footer;
+        document.getElementById('inputHeaderCss').value  = d.css;
+        document.getElementById('inputFooterCss').value  = '';   
 
         document.getElementById('formEditor').submit();
     }
 
-    function bukaModalEditTeks() {
+    async function bukaModalEditTeks() {
+        if (!editor) return;
+
+        const d = ambilDesain();
+        const formData = new FormData();
+        formData.append('_token', '{{ csrf_token() }}');
+        formData.append('header_html', d.header);
+        formData.append('footer_html', d.footer);
+        formData.append('header_css', d.css);
+        formData.append('footer_css', '');
+
+        try {
+            const res  = await fetch("{{ route('template.editor.save', $template->template_email_id ?: 0) }}", {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            });
+            const json = await res.json().catch(() => ({}));
+
+            if (!res.ok || json.success !== true) {
+                alert(
+                    res.status === 419
+                        ? 'Sesi halaman sudah habis, jadi desain terakhir belum tersimpan. Muat ulang halaman lalu ulangi perubahan terakhir.'
+                        : (json.message || 'Gagal menyimpan desain. Coba lagi.')
+                );
+                return;
+            }
+        } catch (e) {
+            alert('Gagal menyimpan desain. Periksa koneksi lalu coba lagi.');
+            return;
+        }
+
         const tplData = {
-            template_email_id: {{ $template->template_email_id }},
-            nama: @json($template->nama),
+            template_email_id: {{ $template->template_email_id ?: 0 }},
+            nama:      @json($template->nama),
             deskripsi: @json($template->deskripsi),
-            subject: @json($template->subject),
-            body: @json($template->body),
-            status: @json($template->status ?? 'active')
+            subject:   @json($template->subject),
+            body:      @json($template->body),
+            status:    @json($template->status ?? 'active'),
         };
 
         localStorage.setItem('edit_template_data', JSON.stringify(tplData));
